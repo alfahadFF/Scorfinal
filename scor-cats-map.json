@@ -1,0 +1,742 @@
+{
+ "crawler-excavators": {
+  "folder": "crawler-excavators",
+  "name_ar": "حفارات مجنزرة",
+  "name_en": "Crawler Excavators",
+  "models": [
+   {
+    "code": "EX08",
+    "slug": "ex08",
+    "display": "EX08",
+    "href": "crawler-excavators/ex08.html"
+   },
+   {
+    "code": "EX10",
+    "slug": "ex10",
+    "display": "EX10",
+    "href": "crawler-excavators/ex10.html"
+   },
+   {
+    "code": "EX12",
+    "slug": "ex12",
+    "display": "EX12",
+    "href": "crawler-excavators/ex12.html"
+   },
+   {
+    "code": "EX135",
+    "slug": "ex135",
+    "display": "EX135",
+    "href": "crawler-excavators/ex135.html"
+   },
+   {
+    "code": "EX18",
+    "slug": "ex18",
+    "display": "EX18",
+    "href": "crawler-excavators/ex18.html"
+   },
+   {
+    "code": "EX20",
+    "slug": "ex20",
+    "display": "EX20",
+    "href": "crawler-excavators/ex20.html"
+   },
+   {
+    "code": "EX215",
+    "slug": "ex215",
+    "display": "EX215",
+    "href": "crawler-excavators/ex215.html"
+   },
+   {
+    "code": "EX25",
+    "slug": "ex25",
+    "display": "EX25",
+    "href": "crawler-excavators/ex25.html"
+   },
+   {
+    "code": "EX30",
+    "slug": "ex30",
+    "display": "EX30",
+    "href": "crawler-excavators/ex30.html"
+   },
+   {
+    "code": "EX35",
+    "slug": "ex35",
+    "display": "EX35",
+    "href": "crawler-excavators/ex35.html"
+   },
+   {
+    "code": "EX380",
+    "slug": "ex380",
+    "display": "EX380",
+    "href": "crawler-excavators/ex380.html"
+   },
+   {
+    "code": "EX40",
+    "slug": "ex40",
+    "display": "EX40",
+    "href": "crawler-excavators/ex40.html"
+   },
+   {
+    "code": "EX65",
+    "slug": "ex65",
+    "display": "EX65",
+    "href": "crawler-excavators/ex65.html"
+   },
+   {
+    "code": "EX75",
+    "slug": "ex75",
+    "display": "EX75",
+    "href": "crawler-excavators/ex75.html"
+   }
+  ],
+  "count": 14
+ },
+ "skid-steer-loaders": {
+  "folder": "skid-steer-loaders",
+  "name_ar": "لوادر انزلاقية",
+  "name_en": "Skid Steer Loaders",
+  "models": [
+   {
+    "code": "EX150",
+    "slug": "ex150",
+    "display": "EX150",
+    "href": "skid-steer-loaders/ex150.html"
+   },
+   {
+    "code": "EX50",
+    "slug": "ex50",
+    "display": "EX50",
+    "href": "skid-steer-loaders/ex50.html"
+   },
+   {
+    "code": "EX65",
+    "slug": "ex65",
+    "display": "EX65",
+    "href": "skid-steer-loaders/ex65.html"
+   },
+   {
+    "code": "EX65",
+    "slug": "ex65-2",
+    "display": "EX65",
+    "href": "skid-steer-loaders/ex65-2.html"
+   },
+   {
+    "code": "WX110",
+    "slug": "wx110",
+    "display": "WX110",
+    "href": "skid-steer-loaders/wx110.html"
+   },
+   {
+    "code": "WX145",
+    "slug": "wx145",
+    "display": "WX145",
+    "href": "skid-steer-loaders/wx145.html"
+   },
+   {
+    "code": "WX180",
+    "slug": "wx180",
+    "display": "WX180",
+    "href": "skid-steer-loaders/wx180.html"
+   },
+   {
+    "code": "WX350",
+    "slug": "wx350",
+    "display": "WX350",
+    "href": "skid-steer-loaders/wx350.html"
+   },
+   {
+    "code": "WX390",
+    "slug": "wx390",
+    "display": "WX390",
+    "href": "skid-steer-loaders/wx390.html"
+   },
+   {
+    "code": "WX45",
+    "slug": "wx45",
+    "display": "WX45",
+    "href": "skid-steer-loaders/wx45.html"
+   },
+   {
+    "code": "WX50",
+    "slug": "wx50",
+    "display": "WX50",
+    "href": "skid-steer-loaders/wx50.html"
+   },
+   {
+    "code": "WX65",
+    "slug": "wx65",
+    "display": "WX65",
+    "href": "skid-steer-loaders/wx65.html"
+   },
+   {
+    "code": "WX65",
+    "slug": "wx65-2",
+    "display": "WX65",
+    "href": "skid-steer-loaders/wx65-2.html"
+   }
+  ],
+  "count": 13
+ },
+ "wheel-loaders": {
+  "folder": "wheel-loaders",
+  "name_ar": "لوادر بعجلات",
+  "name_en": "Wheel Loaders",
+  "models": [
+   {
+    "code": "WX03",
+    "slug": "wx03",
+    "display": "WX03",
+    "href": "wheel-loaders/wx03.html"
+   },
+   {
+    "code": "WX08",
+    "slug": "wx08",
+    "display": "WX08",
+    "href": "wheel-loaders/wx08.html"
+   },
+   {
+    "code": "WX08A",
+    "slug": "wx08a",
+    "display": "WX08A",
+    "href": "wheel-loaders/wx08a.html"
+   },
+   {
+    "code": "WX12",
+    "slug": "wx12",
+    "display": "WX12",
+    "href": "wheel-loaders/wx12.html"
+   },
+   {
+    "code": "WX15",
+    "slug": "wx15",
+    "display": "WX15",
+    "href": "wheel-loaders/wx15.html"
+   },
+   {
+    "code": "WX16",
+    "slug": "wx16",
+    "display": "WX16",
+    "href": "wheel-loaders/wx16.html"
+   },
+   {
+    "code": "WX160",
+    "slug": "wx160",
+    "display": "WX160",
+    "href": "wheel-loaders/wx160.html"
+   },
+   {
+    "code": "WX20",
+    "slug": "wx20",
+    "display": "WX20",
+    "href": "wheel-loaders/wx20.html"
+   },
+   {
+    "code": "WX25",
+    "slug": "wx25",
+    "display": "WX25",
+    "href": "wheel-loaders/wx25.html"
+   },
+   {
+    "code": "WX30",
+    "slug": "wx30",
+    "display": "WX30",
+    "href": "wheel-loaders/wx30.html"
+   },
+   {
+    "code": "WX30-25T",
+    "slug": "wx30-25t",
+    "display": "WX30-25T",
+    "href": "wheel-loaders/wx30-25t.html"
+   },
+   {
+    "code": "WX3000T",
+    "slug": "wx3000t",
+    "display": "WX3000T",
+    "href": "wheel-loaders/wx3000t.html"
+   },
+   {
+    "code": "WX32",
+    "slug": "wx32",
+    "display": "WX32",
+    "href": "wheel-loaders/wx32.html"
+   },
+   {
+    "code": "WX35",
+    "slug": "wx35",
+    "display": "WX35",
+    "href": "wheel-loaders/wx35.html"
+   },
+   {
+    "code": "WX35-10",
+    "slug": "wx35-10",
+    "display": "WX35-10",
+    "href": "wheel-loaders/wx35-10.html"
+   },
+   {
+    "code": "WX45-35",
+    "slug": "wx45-35",
+    "display": "WX45-35",
+    "href": "wheel-loaders/wx45-35.html"
+   }
+  ],
+  "count": 16
+ },
+ "wheel-excavators": {
+  "folder": "wheel-excavators",
+  "name_ar": "حفارات بعجلات",
+  "name_en": "Wheel Excavators",
+  "models": [
+   {
+    "code": "WX100W-9T",
+    "slug": "wx100w-9t",
+    "display": "WX100W-9T",
+    "href": "wheel-excavators/wx100w-9t.html"
+   },
+   {
+    "code": "WX135W-10T",
+    "slug": "wx135w-10t",
+    "display": "WX135W-10T",
+    "href": "wheel-excavators/wx135w-10t.html"
+   },
+   {
+    "code": "WX135W-9T",
+    "slug": "wx135w-9t",
+    "display": "WX135W-9T",
+    "href": "wheel-excavators/wx135w-9t.html"
+   },
+   {
+    "code": "WX160W-9T",
+    "slug": "wx160w-9t",
+    "display": "WX160W-9T",
+    "href": "wheel-excavators/wx160w-9t.html"
+   },
+   {
+    "code": "WX180W-9T",
+    "slug": "wx180w-9t",
+    "display": "WX180W-9T",
+    "href": "wheel-excavators/wx180w-9t.html"
+   },
+   {
+    "code": "WX215W-9T",
+    "slug": "wx215w-9t",
+    "display": "WX215W-9T",
+    "href": "wheel-excavators/wx215w-9t.html"
+   },
+   {
+    "code": "WX40W-7",
+    "slug": "wx40w-7",
+    "display": "WX40W-7",
+    "href": "wheel-excavators/wx40w-7.html"
+   },
+   {
+    "code": "WX55W-8",
+    "slug": "wx55w-8",
+    "display": "WX55W-8",
+    "href": "wheel-excavators/wx55w-8.html"
+   },
+   {
+    "code": "WX75W-9T",
+    "slug": "wx75w-9t",
+    "display": "WX75W-9T",
+    "href": "wheel-excavators/wx75w-9t.html"
+   },
+   {
+    "code": "WX80W-9C",
+    "slug": "wx80w-9c",
+    "display": "WX80W-9C",
+    "href": "wheel-excavators/wx80w-9c.html"
+   },
+   {
+    "code": "WX80W-9T",
+    "slug": "wx80w-9t",
+    "display": "WX80W-9T",
+    "href": "wheel-excavators/wx80w-9t.html"
+   },
+   {
+    "code": "WX90W-9T",
+    "slug": "wx90w-9t",
+    "display": "WX90W-9T",
+    "href": "wheel-excavators/wx90w-9t.html"
+   },
+   {
+    "code": "WX95W-9T",
+    "slug": "wx95w-9t",
+    "display": "WX95W-9T",
+    "href": "wheel-excavators/wx95w-9t.html"
+   }
+  ],
+  "count": 13
+ },
+ "diesel-forklifts": {
+  "folder": "diesel-forklifts",
+  "name_ar": "رافعات شوكية ديزل",
+  "name_en": "Diesel Forklifts",
+  "models": [
+   {
+    "code": "WX2.5TF",
+    "slug": "wx2-5tf",
+    "display": "WX2.5TF",
+    "href": "diesel-forklifts/wx2-5tf.html"
+   },
+   {
+    "code": "WX2TF",
+    "slug": "wx2tf",
+    "display": "WX2TF",
+    "href": "diesel-forklifts/wx2tf.html"
+   },
+   {
+    "code": "WX3.5TF",
+    "slug": "wx3-5tf",
+    "display": "WX3.5TF",
+    "href": "diesel-forklifts/wx3-5tf.html"
+   },
+   {
+    "code": "WX3.8TF",
+    "slug": "wx3-8tf",
+    "display": "WX3.8TF",
+    "href": "diesel-forklifts/wx3-8tf.html"
+   },
+   {
+    "code": "WX3TF",
+    "slug": "wx3tf",
+    "display": "WX3TF",
+    "href": "diesel-forklifts/wx3tf.html"
+   },
+   {
+    "code": "WX4TF",
+    "slug": "wx4tf",
+    "display": "WX4TF",
+    "href": "diesel-forklifts/wx4tf.html"
+   },
+   {
+    "code": "WX5TF",
+    "slug": "wx5tf",
+    "display": "WX5TF",
+    "href": "diesel-forklifts/wx5tf.html"
+   },
+   {
+    "code": "WX6TF",
+    "slug": "wx6tf",
+    "display": "WX6TF",
+    "href": "diesel-forklifts/wx6tf.html"
+   },
+   {
+    "code": "WX30F",
+    "slug": "wx30f",
+    "display": "WX30F",
+    "href": "diesel-forklifts/wx30f.html"
+   },
+   {
+    "code": "WX35F",
+    "slug": "wx35f",
+    "display": "WX35F",
+    "href": "diesel-forklifts/wx35f.html"
+   }
+  ],
+  "count": 10
+ },
+ "electric-forklifts": {
+  "folder": "electric-forklifts",
+  "name_ar": "رافعات شوكية كهربائية",
+  "name_en": "Electric Forklifts",
+  "models": [
+   {
+    "code": "WX0.5TE",
+    "slug": "wx0-5te",
+    "display": "WX0.5TE",
+    "href": "electric-forklifts/wx0-5te.html"
+   },
+   {
+    "code": "WX0.8TE",
+    "slug": "wx0-8te",
+    "display": "WX0.8TE",
+    "href": "electric-forklifts/wx0-8te.html"
+   },
+   {
+    "code": "WX1.5TE",
+    "slug": "wx1-5te",
+    "display": "WX1.5TE",
+    "href": "electric-forklifts/wx1-5te.html"
+   },
+   {
+    "code": "WX1TE",
+    "slug": "wx1te",
+    "display": "WX1TE",
+    "href": "electric-forklifts/wx1te.html"
+   },
+   {
+    "code": "WX2.5TE",
+    "slug": "wx2-5te",
+    "display": "WX2.5TE",
+    "href": "electric-forklifts/wx2-5te.html"
+   },
+   {
+    "code": "WX2TE",
+    "slug": "wx2te",
+    "display": "WX2TE",
+    "href": "electric-forklifts/wx2te.html"
+   },
+   {
+    "code": "WX3.5TE",
+    "slug": "wx3-5te",
+    "display": "WX3.5TE",
+    "href": "electric-forklifts/wx3-5te.html"
+   },
+   {
+    "code": "WX3TE",
+    "slug": "wx3te",
+    "display": "WX3TE",
+    "href": "electric-forklifts/wx3te.html"
+   },
+   {
+    "code": "WX50F",
+    "slug": "wx50f",
+    "display": "WX50F",
+    "href": "electric-forklifts/wx50f.html"
+   },
+   {
+    "code": "WXR50F",
+    "slug": "wxr50f",
+    "display": "WXR50F",
+    "href": "electric-forklifts/wxr50f.html"
+   }
+  ],
+  "count": 10
+ },
+ "backhoe-loaders": {
+  "folder": "backhoe-loaders",
+  "name_ar": "لوادر حفارة",
+  "name_en": "Backhoe Loaders",
+  "models": [
+   {
+    "code": "WX15-20",
+    "slug": "wx15-20",
+    "display": "WX15-20",
+    "href": "backhoe-loaders/wx15-20.html"
+   },
+   {
+    "code": "WX20-16",
+    "slug": "wx20-16",
+    "display": "WX20-16",
+    "href": "backhoe-loaders/wx20-16.html"
+   },
+   {
+    "code": "WX30-25F",
+    "slug": "wx30-25f",
+    "display": "WX30-25F",
+    "href": "backhoe-loaders/wx30-25f.html"
+   },
+   {
+    "code": "WX30-25R",
+    "slug": "wx30-25r",
+    "display": "WX30-25R",
+    "href": "backhoe-loaders/wx30-25r.html"
+   },
+   {
+    "code": "WX40-28",
+    "slug": "wx40-28",
+    "display": "WX40-28",
+    "href": "backhoe-loaders/wx40-28.html"
+   }
+  ],
+  "count": 5
+ },
+ "telescopic-loaders": {
+  "folder": "telescopic-loaders",
+  "name_ar": "لودرات تلسكوبية",
+  "name_en": "Telescopic Loaders",
+  "models": [
+   {
+    "code": "WX1200T",
+    "slug": "wx1200t",
+    "display": "WX1200T",
+    "href": "telescopic-loaders/wx1200t.html"
+   },
+   {
+    "code": "WX1600T",
+    "slug": "wx1600t",
+    "display": "WX1600T",
+    "href": "telescopic-loaders/wx1600t.html"
+   },
+   {
+    "code": "WX2500T",
+    "slug": "wx2500t",
+    "display": "WX2500T",
+    "href": "telescopic-loaders/wx2500t.html"
+   }
+  ],
+  "count": 3
+ },
+ "trailer-concrete-pumps": {
+  "folder": "trailer-concrete-pumps",
+  "name_ar": "مضخات خرسانة مقطورة",
+  "name_en": "Trailer Concrete Pumps",
+  "models": [
+   {
+    "code": "PM 35",
+    "slug": "pm-35",
+    "display": "PM 35",
+    "href": "trailer-concrete-pumps/pm-35.html"
+   },
+   {
+    "code": "SCOR PM 15",
+    "slug": "pm-15",
+    "display": "SCOR PM 15",
+    "href": "trailer-concrete-pumps/pm-15.html"
+   },
+   {
+    "code": "SCOR PM 16",
+    "slug": "pm-16",
+    "display": "SCOR PM 16",
+    "href": "trailer-concrete-pumps/pm-16.html"
+   },
+   {
+    "code": "SCOR PM 20",
+    "slug": "pm-20",
+    "display": "SCOR PM 20",
+    "href": "trailer-concrete-pumps/pm-20.html"
+   },
+   {
+    "code": "SCOR PM 22",
+    "slug": "pm-22",
+    "display": "SCOR PM 22",
+    "href": "trailer-concrete-pumps/pm-22.html"
+   },
+   {
+    "code": "SCOR PM 30",
+    "slug": "pm-30",
+    "display": "SCOR PM 30",
+    "href": "trailer-concrete-pumps/pm-30.html"
+   },
+   {
+    "code": "SCOR PM 37",
+    "slug": "pm-37",
+    "display": "SCOR PM 37",
+    "href": "trailer-concrete-pumps/pm-37.html"
+   },
+   {
+    "code": "SCOR PM 45",
+    "slug": "pm-45",
+    "display": "SCOR PM 45",
+    "href": "trailer-concrete-pumps/pm-45.html"
+   },
+   {
+    "code": "SCOR PM 50",
+    "slug": "pm-50",
+    "display": "SCOR PM 50",
+    "href": "trailer-concrete-pumps/pm-50.html"
+   },
+   {
+    "code": "SCOR PM 55",
+    "slug": "pm-55",
+    "display": "SCOR PM 55",
+    "href": "trailer-concrete-pumps/pm-55.html"
+   },
+   {
+    "code": "SCOR PM 75",
+    "slug": "pm-75",
+    "display": "SCOR PM 75",
+    "href": "trailer-concrete-pumps/pm-75.html"
+   }
+  ],
+  "count": 11
+ },
+ "self-loading-mixers": {
+  "folder": "self-loading-mixers",
+  "name_ar": "خلاطات ذاتية التعبئة",
+  "name_en": "Self-Loading Mixers",
+  "models": [
+   {
+    "code": "MX05",
+    "slug": "mx05",
+    "display": "MX05",
+    "href": "self-loading-mixers/mx05.html"
+   },
+   {
+    "code": "MX08",
+    "slug": "mx08",
+    "display": "MX08",
+    "href": "self-loading-mixers/mx08.html"
+   },
+   {
+    "code": "MX12",
+    "slug": "mx12",
+    "display": "MX12",
+    "href": "self-loading-mixers/mx12.html"
+   },
+   {
+    "code": "MX18",
+    "slug": "mx18",
+    "display": "MX18",
+    "href": "self-loading-mixers/mx18.html"
+   },
+   {
+    "code": "MX20",
+    "slug": "mx20",
+    "display": "MX20",
+    "href": "self-loading-mixers/mx20.html"
+   },
+   {
+    "code": "MX26-1",
+    "slug": "mx26-1",
+    "display": "MX26-1",
+    "href": "self-loading-mixers/mx26-1.html"
+   },
+   {
+    "code": "MX26-2",
+    "slug": "mx26-2",
+    "display": "MX26-2",
+    "href": "self-loading-mixers/mx26-2.html"
+   },
+   {
+    "code": "MX35A",
+    "slug": "mx35a",
+    "display": "MX35A",
+    "href": "self-loading-mixers/mx35a.html"
+   },
+   {
+    "code": "MX35B",
+    "slug": "mx35b",
+    "display": "MX35B",
+    "href": "self-loading-mixers/mx35b.html"
+   },
+   {
+    "code": "MX35C",
+    "slug": "mx35c",
+    "display": "MX35C",
+    "href": "self-loading-mixers/mx35c.html"
+   },
+   {
+    "code": "MX35D",
+    "slug": "mx35d",
+    "display": "MX35D",
+    "href": "self-loading-mixers/mx35d.html"
+   },
+   {
+    "code": "MX40-مفصلية",
+    "slug": "mx40",
+    "display": "MX40-مفصلية",
+    "href": "self-loading-mixers/mx40.html"
+   },
+   {
+    "code": "MX40-هيكل-كامل",
+    "slug": "mx40-2",
+    "display": "MX40-هيكل-كامل",
+    "href": "self-loading-mixers/mx40-2.html"
+   },
+   {
+    "code": "MX55",
+    "slug": "mx55",
+    "display": "MX55",
+    "href": "self-loading-mixers/mx55.html"
+   },
+   {
+    "code": "MX65",
+    "slug": "mx65",
+    "display": "MX65",
+    "href": "self-loading-mixers/mx65.html"
+   }
+  ],
+  "count": 15
+ }
+}

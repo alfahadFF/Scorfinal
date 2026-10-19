@@ -1,0 +1,41 @@
+/* SCOR footer — modelled on the official scor-sy.de footer */
+.scor-footer{background:#151515;color:#e8e8e8;font-family:inherit;margin-top:0}
+.scor-footer a{color:#F5B400;text-decoration:none}
+.scor-footer a:hover{color:#fff;text-decoration:underline}
+.scor-footer .sf-top{background:#fff;color:#222;border-top:4px solid #F5B400}
+.scor-footer .sf-wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+.scor-footer .sf-top-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:34px 0}
+.scor-footer .sf-contact{text-align:center;padding:6px 10px}
+.scor-footer .sf-icon{width:54px;height:54px;margin:0 auto 12px;border-radius:50%;background:#F5B400;color:#151515;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;line-height:1}
+.scor-footer .sf-title{font-size:17px;font-weight:700;margin:0 0 6px;color:#151515;text-transform:none}
+.scor-footer .sf-text{margin:0;font-size:15px;color:#444;word-break:break-word}
+.scor-footer .sf-text a{color:#151515;font-weight:600}
+.scor-footer .sf-main{background:#151515}
+.scor-footer .sf-main-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:36px;padding:42px 0 34px}
+.scor-footer .sf-widget-title{color:#fff;font-size:19px;font-weight:700;margin:0 0 16px;padding-bottom:10px;border-bottom:2px solid #F5B400}
+.scor-footer .sf-address{font-style:normal;line-height:1.9;color:#d7d7d7;font-size:15px}
+.scor-footer .sf-address a{color:#e8e8e8}
+.scor-footer .sf-address a:hover{color:#F5B400}
+.scor-footer .sf-links{list-style:none;margin:0;padding:0}
+.scor-footer .sf-links li{margin:0 0 10px}
+.scor-footer .sf-links a{color:#e8e8e8;font-size:15px}
+.scor-footer .sf-links a:hover{color:#F5B400}
+.scor-footer .sf-brand img{max-width:220px;height:auto;display:block;margin-bottom:14px}
+.scor-footer .sf-brand p{color:#c9c9c9;line-height:1.7;margin:0;font-size:15px}
+.scor-footer .sf-copy{background:#000;color:#bbb;text-align:center;padding:16px 20px;font-size:14px}
+.scor-footer .sf-copy a{color:#F5B400}
+.official-text{font-size:16px;line-height:1.75;color:#333}
+.official-text h2{font-size:24px;margin:28px 0 10px;color:#151515}
+.official-text h3{font-size:19px;margin:22px 0 8px;color:#151515}
+.official-text p{margin:0 0 12px}
+.official-text ul{margin:0 0 14px 20px}
+.official-text .director-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin:18px 0}
+.official-text .director-card{border:1px solid #e3e3e3;border-top:4px solid #F5B400;padding:18px;background:#fff}
+.official-text .director-card h3{margin-top:0}
+.official-text .company-table{width:100%;border-collapse:collapse;margin:16px 0}
+.official-text .company-table th,.official-text .company-table td{border:1px solid #ddd;padding:10px;text-align:left;vertical-align:top}
+.official-text .company-table th{width:34%;background:#f7f7f7}
+@media (max-width:900px){.scor-footer .sf-top-grid{grid-template-columns:repeat(2,1fr)}.scor-footer .sf-main-grid{grid-template-columns:1fr}}
+@media (max-width:520px){.scor-footer .sf-top-grid{grid-template-columns:1fr}.scor-footer .sf-wrap{padding:0 16px}}
+
+.official-text .company-lead{font-size:25px;font-weight:700;text-align:center;color:#151515;margin:4px 0 22px;padding-bottom:12px;border-bottom:3px solid #F5B400;letter-spacing:.01em}

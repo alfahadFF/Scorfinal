@@ -1,0 +1,75 @@
+#sideBar {    border: solid 1px #DDD;overflow: hidden;    margin-top: 40px;}
+#pageHeader h1 {font-size: 36px;text-align: center;font-weight: 400;margin-top: 50px;}
+#pageHeader h2 {height:auto;margin: auto;font-size: 24px;line-height: 30px;font-weight: 300;max-width: 800px;text-align: center}
+
+.right-layout {flex-direction: row;}
+#offices .placeCard > div {margin-bottom:20px;height:100%;}
+.placeCard .map {height: 200px;}
+.placeCard .image img {width:100%}
+.placeCard .name {font-size:24px;font-weight: 700;padding: 40px 32px 0px;}
+.placeCard .description {margin-top: 10px;font-size: 18px;line-height: 26px;padding: 10px 32px 32px;font-weight: 400;color: #666;}
+.placeCard .info {padding: 30px 32px 30px;}
+#offices .placeCard .name {padding:20px 20px 0px}
+#offices .placeCard .info {padding:30px 30px 20px}
+.placeCard .buttons {    padding: 0px 40px 40px 30px;}
+.placeCard .buttons .button {display: block;}
+.placeCard .buttons .button.gray {background: #666;}
+.placeCard .buttons .button + .button {margin-top:20px}
+.placeCard .title {    font-weight: 700;}
+.placeCard .value {font-size: 14px;font-weight: 300;margin-bottom: 15px;}
+.placeCard.medium-12 {}
+.placeCard.medium-12 img {width:480px;margin:10px 0px 10px 10px;}
+.placeCard.medium-12 .name {    padding: 30px 30px 0px !important;}
+.placeCard.medium-12 .value {margin-bottom:0px;}
+.placeCard.medium-12 .info {padding-top:0px !important;padding-bottom:0px !important}
+.placeCard.medium-12 .info p {    font-weight: 500;margin: 0px 2px;}
+.placeCard {
+    display: flex; /* Esnek düzen için */
+    align-items: center; /* Dikey hizalama */
+    margin-bottom: 20px; /* Kartlar arası boşluk */
+}
+.placeCard .image img {
+    max-width: 100%; /* Görsel genişliği sınırlandır */
+    height: auto;
+    border-radius: 8px; /* Köşeleri yuvarla */
+}
+
+#map {height:500px}
+#map .gm-style-iw-chr {    position: absolute;right: 0px;}
+#map .gm-style-iw-d {    min-width: 250px;}
+#map h3 {    font-size: 14px;margin-top: 12px;}
+#map p {    margin: 0px;}
+
+.type-list {margin-top:20px}
+.type-list .type {padding: 0px 30px;}
+.type-list .type img {    height: 20px;}
+
+.locationSelection {margin-top:40px;}
+.locationSelection select {border: solid 1px #CCC;border-radius: 0px;padding: 12px 18px;height: 52px;}
+#contactList {}
+#contactList .header {    background: #EEE;padding: 10px 0px;    border-bottom: solid 1px #DDD;}
+#contactList h3 {    margin: 0px;}
+#contactList h3 + div small {}
+#contactList h3 + div small a {color: #BBB;display: inline-block;margin-right: 3px;border-right: solid 1px;padding-right: 7px;    font-size: 12px;font-weight: 600}
+#contactList h3 + div small a:hover {text-decoration: underline}
+#contactList h3 + div small a:last-child {margin-left:0px;padding-right:0px;border-right:0px}
+#contactList .map {}
+#contactList .map img {width:100%;margin-bottom:20px}
+#contactList .title {    font-weight: 700;}
+#contactList .value {font-size: 14px;font-weight: 300;margin-bottom: 15px;}
+
+#offices {list-style:none;margin-top:24px;}
+#offices > li {margin-top:20px !important;}
+
+#offices {margin:0px 20px}
+@media only screen and (max-width: 40em) {
+    #pageHeader {margin-bottom:0px !important}
+    #info {margin:0px !important}
+    #pageHeader h1 {    font-size: 26px;    margin-top: 0px;}
+    #pageHeader h2 {    font-size: 16px;line-height: 22px;}
+    #offices > li {margin:0px !important}
+    #offices > li > div {display:block;margin-bottom:0px !important}
+    .placeCard.medium-12 .name {padding:20px 20px 0px !important;font-size:18px;}
+    .placeCard .image img {width:100% !important;margin:0px !important  }
+    .placeCard.medium-12 .info {padding:30px 20px 20px !important;padding-top:10px !important}
+}

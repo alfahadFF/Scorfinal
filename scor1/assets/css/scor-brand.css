@@ -1,0 +1,114 @@
+/* ============================================================
+   SCOR Visual Identity — "Industrial Power" (approved palette)
+   Primary Yellow #F5B400 · Dark Gold #C98F00 · Charcoal #151515
+   Secondary BG #242424 · Metal Gray #667085 · White #FFFFFF
+   Text #111827
+   ============================================================ */
+:root{
+  --scor-yellow:#F5B400;
+  --scor-gold:#C98F00;
+  --scor-charcoal:#151515;
+  --scor-dark:#242424;
+  --scor-gray:#667085;
+  --scor-text:#111827;
+  --scor-white:#FFFFFF;
+}
+body{color:var(--scor-text)}
+::selection{background:var(--scor-yellow);color:var(--scor-charcoal)}
+a:hover,a:focus{color:var(--scor-gold)}
+h1,h2,h3,h4,h5,h6{color:var(--scor-text)}
+
+/* Header navigation */
+.main-nav .link>a{color:var(--scor-text)}
+#subHeader .main-nav .link.active>a,
+#subHeader .main-nav .link:hover>a,
+.main-nav .link.active>a,
+.main-nav .link:hover>a{color:var(--scor-charcoal)!important}
+#subHeader .main-nav .link.active,
+.main-nav .link.active{border-color:var(--scor-yellow)}
+#subHeader .dropDown.list ul li a,
+#subHeader .primary.shrink>a{color:var(--scor-gold)}
+#subHeader .dropDown>div ul li:hover,
+#subHeader .dropDown>div ul li:hover a{background:var(--scor-charcoal);color:var(--scor-white)}
+#subHeader .subLink svg>*{stroke:var(--scor-gray)}
+#subHeader .subLink svg>polygon{fill:var(--scor-gray)}
+#subHeader .subLink:hover svg>*{stroke:var(--scor-charcoal)}
+#subHeader .subLink:hover svg>polygon{fill:var(--scor-charcoal)}
+#subHeader .productGroups li .title a:hover{color:var(--scor-gold)}
+#subHeader .productGroups li:hover>div{border-color:var(--scor-yellow)}
+
+/* Buttons & calls to action */
+.button{background-color:var(--scor-yellow)!important;border:solid 1px var(--scor-yellow);color:var(--scor-charcoal)!important;font-weight:600}
+.button:hover{background-color:var(--scor-gold)!important;border-color:var(--scor-gold);color:var(--scor-white)!important}
+.buttons .button.gray{background:var(--scor-dark)!important;color:var(--scor-white)!important;border-color:var(--scor-dark)}
+.buttons .button.gray:hover{background:var(--scor-yellow)!important;color:var(--scor-charcoal)!important;border-color:var(--scor-yellow)}
+input[type="submit"],button[type="submit"]{accent-color:var(--scor-yellow)}
+
+/* Forms */
+input[type="text"]:focus,input[type="email"]:focus,input[type="tel"]:focus,
+input[type="search"]:focus,textarea:focus,select:focus{
+  border-color:var(--scor-yellow)!important;
+  box-shadow:0 0 0 3px rgba(245,180,0,.25)!important;
+  outline:0;
+}
+
+/* Breadcrumb / tabs / sliders */
+#breadCrumb{background:var(--scor-dark)}
+#breadCrumb a{color:#C9CDD2}
+#breadCrumb a:hover{color:var(--scor-yellow)}
+.tabs li .header .action:hover{color:var(--scor-gold)}
+.slick-prev,.slick-next,.swiper-button-prev,.swiper-button-next{color:var(--scor-yellow)!important}
+.slick-dots li.slick-active button:before{color:var(--scor-yellow)!important}
+.slick-dots li button:hover:before{color:var(--scor-gold)!important}
+
+/* Mobile menu */
+#mobileMenu .menuNavigator{border-color:var(--scor-yellow);color:var(--scor-yellow)}
+#mobileMenu .dropDown>div .headLink.open .columns.shrink span{color:var(--scor-yellow)}
+#mobileMenu .dropDown>div .headLink.open>div+div{background:var(--scor-charcoal)}
+
+/* Content accents */
+.sectionTitle{color:var(--scor-text)}
+.sectionDescription{color:var(--scor-gray)}
+.official-text a{color:var(--scor-gold)}
+.official-text a:hover{color:var(--scor-charcoal)}
+.official-text .director-card{border-top-color:var(--scor-yellow)}
+.official-text .company-table th{background:#F8F9FA;color:var(--scor-text)}
+
+/* Footer (official-style) — palette alignment */
+.scor-footer .sf-top{border-top-color:var(--scor-yellow)}
+.scor-footer .sf-icon{background:var(--scor-yellow);color:var(--scor-charcoal)}
+.scor-footer .sf-main{background:var(--scor-charcoal)}
+.scor-footer .sf-copy{background:var(--scor-dark)}
+.scor-footer .sf-widget-title{border-bottom-color:var(--scor-yellow)}
+.scor-footer a{color:var(--scor-yellow)}
+.scor-footer .sf-links a,.scor-footer .sf-address a{color:#E8E8E8}
+.scor-footer .sf-links a:hover,.scor-footer .sf-address a:hover{color:var(--scor-yellow)}
+
+
+/* === SCOR FIX: header/footer logo hard size (prevents full-width stretch when template CSS loads partially / overrides) === */
+header .logoWrapper img, .logoWrapper img { height: 38px !important; width: auto !important; max-width: 240px !important; max-height: 44px !important; object-fit: contain; }
+footer .logo img, .sf-brand img { height: 30px !important; width: auto !important; max-width: 200px !important; object-fit: contain; }
+#mobileMenu .logoWrapper img { height: 32px !important; width: auto !important; }
+
+/* STAY AHEAD — company motto next to the logo */
+.scor-tagline{position:absolute;left:12px;bottom:0;margin-inline-start:14px;vertical-align:middle;font-weight:800;letter-spacing:.22em;font-size:15px;color:#F5B400;text-transform:uppercase;white-space:nowrap;line-height:1}
+.hero-tagline{display:inline-block;margin:0 0 14px;padding:7px 16px;border:1px solid rgba(245,180,0,.85);background:rgba(21,21,21,.45);color:#F5B400;font-weight:800;letter-spacing:.3em;font-size:14px;text-transform:uppercase}
+@media (max-width:640px){.scor-tagline{font-size:11px;letter-spacing:.14em;margin-inline-start:8px}.hero-tagline{font-size:11px;letter-spacing:.18em}}
+/* mobile: STAY AHEAD under the logo, never behind it */
+@media (max-width:82em){header .scor-tagline{position:fixed!important;top:53px!important;bottom:auto!important;left:42px!important;z-index:26}}
+@media (max-width:82em){body.rtl header .scor-tagline{left:42px!important;right:auto!important}}
+
+/* SCOR language switch: visible globe button in the header (opens #localization overlay) */
+.languageSelectionButton{position:relative!important;z-index:30!important;width:auto!important;height:auto!important;min-width:92px!important;min-height:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;visibility:visible!important;opacity:1!important}
+.languageSelectionButton .icon-globe{font-size:19px!important;line-height:1!important;color:#F5B400!important}
+.languageSelectionButton .lang{font-size:13px!important;font-weight:700!important;letter-spacing:.08em!important;color:#F5B400!important;white-space:nowrap!important}
+.languageSelectionButton:active .lang,.languageSelectionButton:hover .lang{color:#C98F00!important}
+
+/* language flags (localization overlay) */
+#localization .scor-flag{width:26px;height:17px;object-fit:cover;vertical-align:-3px;margin-inline-end:8px;border:1px solid rgba(255,255,255,.35);border-radius:2px}
+#localization .scor-en{display:inline-block;min-width:26px;text-align:center;vertical-align:-1px;margin-inline-end:8px;padding:1px 3px;border:1px solid rgba(255,255,255,.35);border-radius:2px;font-size:10px;font-weight:700;letter-spacing:.06em;color:#F5B400}
+
+/* SCOR language globe button — visible in header, opens the language overlay */
+.scor-lang-btn{position:fixed!important;top:14px!important;inset-inline-end:74px!important;z-index:100000!important;display:inline-flex!important;align-items:center!important;gap:7px!important;padding:8px 13px!important;background:rgba(21,21,21,.72)!important;border:1px solid rgba(245,180,0,.9)!important;border-radius:999px!important;color:#F5B400!important;font:700 12px/1 Arial,sans-serif!important;letter-spacing:.06em!important;cursor:pointer!important;backdrop-filter:blur(3px)}
+.scor-lang-btn:hover{background:rgba(21,21,21,.9)!important;color:#FFD34D!important}
+@media (max-width:640px){.scor-lang-btn{top:10px!important;inset-inline-end:64px!important;padding:7px 10px!important}}

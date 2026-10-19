@@ -1,0 +1,44 @@
+#pageContent > div {}
+#pageHeader {min-height: 0px;margin-bottom:40px}
+#pageHeader h1 {font-size: 36px;text-align: center;font-weight: 400;margin-top: 50px;}
+#pageHeader h2 {height:auto;margin: auto;font-size: 24px;line-height: 30px;font-weight: 300;max-width: 800px;text-align: center}
+#info h1 {font-size: 24px;font-weight:600;}
+#info h2 {font-size: 22px;font-weight:600;    margin-top: 20px;}
+#info h4 {font-weight: 600;margin-bottom:10px}
+#info h5 {font-weight: 600}
+#info {margin-bottom:30px;font-weight:400}
+#info p {font-weight: 400;margin:0px}
+#info dl, #info ol, #info p, #info ul {line-height: 1.5 !important}
+#info p img {display:block;margin:20px auto;}
+
+#info ol {margin-left:30px;}
+#info li {white-space: normal !important}
+#info ol + p {margin-left:30px;margin-bottom:10px;}
+
+#info p.ql-align-center {text-align: center}
+#info .ql-align-justify {text-align: center;}
+#info .ql-align-justify img {margin:auto;}
+
+/* Tables from the post editor (CKEditor wraps them in figure.table) */
+#info figure.table {margin:20px 0;overflow-x:auto;display:block;max-width:100%;}
+#info table {width:100%;border-collapse:collapse;margin:20px 0;font-size:15px;}
+#info figure.table table {margin:0;}
+#info table th, #info table td {border:1px solid #ddd;padding:10px 12px;text-align:left;vertical-align:top;line-height:1.4;}
+#info table th, #info table thead td {background:#f2f2f2;font-weight:600;}
+#info table p {margin:0;}
+#info figure.table figcaption {font-size:13px;color:#666;margin-top:6px;font-style:italic;}
+
+iframe {    width: 100%;aspect-ratio: 16 / 9;height: auto;margin-bottom: 30px;}
+
+#files .file {display: block;font-size:14px;margin-bottom:2px;}
+#files .file:hover {color:#666}
+#files .file .type {    background: red;color: #FFF;padding: 0px 6px;font-size: 13px;border-radius: 5px;font-weight: 700;}
+#files .button {margin-top:18px}
+
+@media only screen and (max-width: 82em) {
+    #pageHeader h1 {    font-size: 26px;    margin-top: 0px;}
+    #pageHeader h2 {    font-size: 16px;line-height: 22px;}
+
+    #info h1 {font-size: 20px;font-weight:600;}
+    #info h2 {font-size: 18px;font-weight:600;}
+}

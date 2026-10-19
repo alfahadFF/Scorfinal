@@ -1,0 +1,131 @@
+#pageContent > div {}
+section.sperate {min-height:300px;background-color:transparent;}
+#pageHeader {text-align:center;}
+#pageHeader h1 {font-size: 36px;text-align: center;font-weight: 600;margin-top: 10px;}
+#pageHeader h2 {height:auto;margin: auto;font-size: 24px;line-height: 30px;font-weight: 400;max-width: 800px;text-align: center}
+#pageHeader h3 {    text-align: center;font-size: 20px;color: #FFF;display: inline-block;padding: 5px 14px;background: #CB0000;border-radius:6px;}
+#page {margin-top:80px}
+#sideBar {    border: solid 1px #DDD;border-radius: 8px;overflow: hidden;}
+#sideBar .image img {width:100%}
+#sideBar .name {font-size:24px;font-weight: 700;padding: 6px 23px 0px;}
+#sideBar .name .label {margin: 0px;line-height: initial;padding: 2px 9px;position: relative;top: -4px;}
+#sideBar .description {margin-top: 10px;font-size: 18px;line-height: 26px;padding: 10px 23px 32px;font-weight: 400;color: #666;}
+#sideBar .information {padding: 0px 32px 30px;font-size:14px;}
+#sideBar .buttons {    padding: 0px 20px 20px;}
+#sideBar .buttons .button {display: block;}
+#sideBar .buttons .button + .button {margin-top:20px}
+#sideBar .buttons .file {display: block;font-size:14px;margin-bottom:2px;}
+#sideBar .buttons .file:hover {color:#666}
+#sideBar .buttons .file .type {    background: red;color: #FFF;padding: 0px 6px;font-size: 13px;border-radius: 5px;font-weight: 700;}
+#sideBar .buttons .button {margin-top:18px}
+
+#sideBar .buttons .button.download {text-align:left;}
+#sideBar .buttons .button.download span {color:#FFF;font-weight: 700}
+#sideBar .buttons .button.download + .downloads {display:none;margin-top:10px;margin-left:6px}
+#sideBar .buttons .button.download.active + .downloads {display:block}
+
+#products {}
+#products > ul {list-style: none;margin: 0px;}
+#products ul li.product {    border: solid 1px #DDD;border-radius: 10px;margin-top:20px;}
+#products ul li.product:first-child {margin-top:0px}
+#products ul li.product .info, #products ul li.product .info > div {    height: 100%;}
+#products ul li.product .info > div + div{    padding-left: 0px;}
+
+#products ul li.product img {    height: auto;}
+#products ul li.product .name {color:#000;font-weight: 600;font-size: 24px;    margin-top: 20px;display: block;    line-height: initial;}
+#products ul li.product .name:hover {text-decoration: underline}
+#products ul li.product .name .label {margin: 0px;line-height: initial;padding: 2px 9px;position: relative;top: -4px;}
+#products ul li.product .description {    font-weight: 400;font-size: 14px;    min-height: 70px;}
+#products ul li.product .links {display: none}
+#products ul li.product .links a {font-size: 14px;margin-left: 16px;font-weight: 400;text-decoration: underline;color: #666;}
+#products ul li.product .links a:hover {color:#000}
+#products ul li.product .specs {    list-style: none;margin: 0px;background: #EEE;padding: 10px;    height: 100%;}
+#products ul li.product .specs .spec {    border-top: dashed 1px #999;margin-top: 6px;padding-top: 10px;}
+#products ul li.product .specs .spec:first-child {border-top:0px;margin-top:0px}
+#products ul li.product .specs .specName {    font-weight: 300;    font-size: 14px;}
+#products ul li.product .specs .specValue {font-weight: 600;    font-size: 14px;}
+
+.specGroups {list-style:none;margin:0px;margin-top:25px !important}
+.specGroups h4 {font-size: 20px;border-bottom: solid 2px #000;padding-bottom: 5px;    background: #FFF;}
+.specGroups .specs {list-style:none;margin:0px;    }
+.specGroups .specs .spec > div {border-top:dashed 1px #CCC;}
+.specGroups .specs .spec:first-child > div,
+.specGroups .specs .spec:first-child + .spec > div {border-top:0px}
+.specGroups .specs .spec .key {font-weight:300;    padding: 10px 0px;}
+.specGroups .specs .spec .key.category {font-size:18px;margin-top: 14px;    padding: 10px 18px;    background: #DDD; border-radius: 8px;}
+.specGroups .specs .spec .value {font-weight:700;    padding: 10px 0px;max-width: 250px;text-align: right;}
+.specGroup {padding: 12px 10px 10px !important;border: solid 1px #DDD;border-radius:8px;}
+.specGroups:first-child {margin-top:0px}
+
+ul.posts .name {font-size:16px !important;font-weight: 400 !important;    height: 86px;color:#666 !important}
+
+#threeD {    margin-top: -80px;margin-bottom:50px}
+#threeD > div {position:relative;overflow:hidden;}
+#threeD .info {height:700px;}
+#threeD .info > div {height:100%}
+#threeD .title {    font-size: 46px;font-weight: 400;color: #000;    line-height: 50px;margin-bottom:20px}
+#threeD .description {    font-size: 20px;font-weight: 300;color: #000;margin-bottom:20px}
+#threeDViewPort {position:relative;background-size:cover;width: 100% !important;height:100% !important;right:0%;top:0px;z-index:1;border-radius: 10px;overflow: hidden;}
+#turnIcon {position: absolute;z-index: 2;right: 0%;top: 40%;width:100%;height:200px;text-align: center;}
+img.hero {margin-bottom:20px}
+
+
+#product {    margin-top: -28px;}
+#product ul {list-style:none;margin:0px;}
+#product ul li {}
+#product ul li .header {    background: #FFF;padding-top:22px;z-index:3}
+#product ul li .header h3 {    font-size: 30px;}
+#product ul li .header .action {    font-size: 24px;margin: 4px 16px;cursor:pointer;color:#999}
+#product ul li .header .action:hover {color:#000;}
+#product ul li .header .action span {display:none;}
+#product ul li .header .action span.on {display:block;}
+#product ul li.active .header .action span.off {display:block;}
+#product ul li.active .header .action span.on {display:none;}
+#product ul li .content {    padding: 0px 0px 30px;}
+#product ul li .content .detail {padding-top:20px}
+#product ul li .content .detail b {}
+#product ul li .content .detail p {font-weight:300;margin:0px}
+
+.items {margin-left:-18px;margin-top:20px}
+.items .item {}
+.items .item > div {border:solid 1px #DDD;background: #EEE;padding:15px 17px;    border-radius: 8px;margin-bottom:20px}
+.items .item .name {    font-size: 18px;font-weight: 700;}
+.items .item .description {    font-size: 12px;font-weight: 400;}
+
+
+#stickyFilter h1 {font-size:20px;color:#666}
+#stickyFilter h2 {font-size:16px;color:#666}
+
+@media only screen and (max-width: 82em) {
+    #page {margin-top: 20px;}
+    #products ul li.product .description {height: auto;min-height: auto}
+    #products ul li.product .info, #products ul li.product .info > div {height:auto;}
+    #products ul li.product .specs {margin-top:10px;        padding: 0px 10px;    margin-bottom: 22px;}
+    #products ul li.product {    padding-bottom: 18px;}
+    #products ul li.product a {text-align: center;display: block;}
+    #products ul li.product .info > div + div {    padding-left: .625rem;}
+
+    #turnIcon {    top: 10%;    width: 30%;height: 30%;left: calc(50% - 15%);}
+    #threeD {margin-top:0px !important}
+    #threeD .info {    height: 200px;}
+    #threeDViewPort {    overflow: hidden;background-size: 100%;background-repeat: no-repeat;}
+
+
+    #stickyFilter .filterContainer {padding:8px 0px}
+    #stickyFilter .container .mainFilter .goBack {    padding-left: 0.625rem;padding-right: 0.625rem;-ms-flex: 1 1 0px;-webkit-box-flex: 1;flex: 1 1 0px;}
+    #stickyFilter .container .mainFilter a.goBack {    margin-left: -26px;}
+    #stickyFilter .container > div > div + div {    width: 100%;}
+    #stickyFilter .container > div > div + div > div > div {width: 100%}
+    #stickyFilter .container > div > div + div > div > div select {width: 100%}
+    #stickyFilter .container .filter.sort {margin-top:0px;}
+    #stickyFilter .container {margin-top: 92px;}
+    #stickyFilter .mainFilter > div + div + div {    -ms-flex: 0 0 100%;-webkit-box-flex: 0;flex: 0 0 100%;max-width: 100%;}
+    #stickyFilter .container .mainFilter .filter,
+    #stickyFilter .container .mainFilter .filter select {width: 100%}
+    #stickyFilter .container .mainFilter .showFilter {left:0px}
+    #subCategories > div > div + div > div { -ms-flex: 0 0 100%;-webkit-box-flex: 0;flex: 0 0 100%;max-width: 100%;}
+    #stickyFilter .title {text-align: left !important;}
+    #subCategories a {text-align:left;display: flex;}
+    #stickyFilter .image img {height:auto;width:50px}
+    #stickyFilter h1 {    margin-top: 16px;}
+}

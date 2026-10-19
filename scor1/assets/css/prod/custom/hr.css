@@ -1,0 +1,65 @@
+#pageHeader h1 {    font-size: 36px;text-align: center;font-weight: 400;margin-top: 50px;}
+#pageHeader h2 {    height: auto;margin: auto;font-size: 24px;line-height: 30px;font-weight: 300;max-width: 800px;text-align: center;}
+
+#sideBar {    border: solid 1px #DDD;overflow: hidden;    margin-top: 20px;margin-left:-15px;}
+#sideBar .map {height: 200px;}
+#sideBar .image img {width:100%}
+#sideBar .name {font-size:24px;font-weight: 700;padding: 40px 32px 0px;}
+#sideBar .description {margin-top: 10px;font-size: 18px;line-height: 26px;padding: 10px 32px 32px;font-weight: 400;color: #666;}
+#sideBar .info {padding: 30px 32px 30px;}
+#sideBar .buttons {    padding: 0px 40px 40px 30px;}
+#sideBar .buttons .button {display: block;}
+#sideBar .buttons .button.gray {background: #666;}
+#sideBar .buttons .button + .button {margin-top:20px}
+#sideBar .title {    font-weight: 700;}
+#sideBar .value {font-size: 14px;font-weight: 300;margin-bottom: 15px;}
+
+#segment {margin-top:50px;    border-bottom: solid 1px #000;height: 46px;}
+#segment a {padding: 10px 30px;border: solid 1px #000;border-bottom:0px;background:#CCC;color:#000;display: inline-block}
+#segment a.active {background: #FFF;color:#000;    height: 46px;}
+#segment > div:first-child a {border-right:0px;}
+
+.locationSelection {margin-top:20px;}
+.locationSelection select {border: solid 1px #CCC;border-radius: 0px;padding: 12px 18px;height: 52px;}
+#contactList {}
+#contactList .header {    background: #EEE;padding: 10px 0px;    border-bottom: solid 1px #DDD;}
+#contactList h3 {    margin: 0px;}
+#contactList h3 + div small {}
+#contactList .map {}
+#contactList .map img {width:100%;margin-bottom:20px}
+#contactList .title {    font-weight: 700;}
+#contactList .value {font-size: 14px;font-weight: 300;margin-bottom: 15px;}
+
+
+#careerForm {margin: auto;padding: 10px 20px;}
+#careerForm > div {    width: 100%;}
+#careerForm h3 {}
+#careerForm .inputs > div {margin-bottom:10px;}
+#careerForm .input {display: block;width:100%;height:60px;padding:2px 20px 0px;font-size: 14px;background-color: #F1F1F1;border:0px;border-radius:0px;outline:0;box-shadow:none;}
+#careerForm .input.textarea {height:160px;background-color: #F1F1F1;  padding-top: 16px;border-radius:0px;border:0px;outline:0;box-shadow:none;}
+#careerForm select {height:50px;padding:15px 20px;font-size:14px;border:0px;background-color:#F1F1F1;box-shadow:none;outline:0;border-radius:0px;margin-bottom:10px;color:#666;}
+#careerForm .help-block {background-color: #F9F9F9;display: block;padding: 8px 22px 4px;font-size: 12px;color: #A92B2B;border-top: solid 1px #f2f2f2;}
+#careerForm .button {border: solid 1px transparent;padding: 0px 10px;min-width: 120px;text-align: center;background-color: #000;color: #FFF;margin-right:0px;}
+#careerForm .button:hover {background-color:#666;}
+#careerForm a.cv {color:#000;font-size:20px;font-weight:500;    margin: 2px;}
+#careerForm a.cv .selected {display:none;}
+#careerForm a.cv.selected .selected {display:block;color:blue}
+#careerForm a.cv.selected .select {display:none;}
+#careerForm input[type='file'] {display:none;}
+#careerForm .aggreement {font-size: 14px;}
+#careerForm .aggreement a {    color: #000;text-decoration: underline;}
+
+
+#info {}
+#info .item {margin-bottom:20px}
+#info .item .img {}
+#info .item .title {    font-size: 34px;}
+#info .item .alt {    margin-top: 20px;}
+#info .item .alt p {font-weight: 400}
+#info .item .buttons {margin-top:20px;}
+
+.jumpLink {text-align: center;margin-bottom:30px}
+
+@media only screen and (max-width: 82em) {
+
+}

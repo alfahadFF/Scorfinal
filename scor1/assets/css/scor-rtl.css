@@ -1,0 +1,8 @@
+/* SCOR RTL support (Arabic) — minimal flips on top of the original theme */
+html[dir="rtl"] body { direction: rtl; text-align: right; }
+html[dir="rtl"] .columns { float: right; }
+html[dir="rtl"] header .main-nav, html[dir="rtl"] #breadCrumb { direction: rtl; }
+html[dir="rtl"] #sideBar .buttons .row, html[dir="rtl"] .spec .row { direction: rtl; }
+html[dir="rtl"] ul.specs .specValue, html[dir="rtl"] .product .value { text-align: left; }
+html[dir="rtl"] input, html[dir="rtl"] select, html[dir="rtl"] textarea { text-align: right; }
+html[dir="rtl"] .scor-footer { direction: rtl; text-align: right; }

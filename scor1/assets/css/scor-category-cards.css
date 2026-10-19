@@ -1,0 +1,22 @@
+/* ============================================================
+   SCOR category model cards — visibility safety net.
+   Loaded LAST in <head>; also inlined at end of <body> on the 20
+   category pages so cards remain visible even if an external
+   CSS fails to load in the sandboxed file viewer or is blocked.
+   Structure: <div id="products"><ul><li class="product">…</li></ul></div>
+   ============================================================ */
+#products{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;height:auto!important;min-height:0!important}
+#products>ul{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;list-style:none!important;margin:0!important;padding:0!important}
+#products li.product{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;float:none!important;height:auto!important;min-height:120px!important;background:#fff!important;border:1px solid #ddd!important;border-radius:10px!important;margin:0 0 20px!important;padding:18px!important;overflow:hidden!important;list-style:none!important;transform:none!important;clip-path:none!important}
+#products li.product .row{display:flex!important;flex-wrap:wrap!important;visibility:visible!important;opacity:1!important}
+#products li.product .columns{display:block!important;visibility:visible!important;opacity:1!important;float:none!important;position:static!important;min-width:0}
+#products li.product img{display:block!important;visibility:visible!important;opacity:1!important;max-width:100%!important;width:100%!important;height:auto!important;border-radius:6px}
+#products li.product .name{display:block!important;visibility:visible!important;opacity:1!important;color:#151515!important;font-size:24px!important;font-weight:700!important;line-height:1.25!important;margin-top:6px!important;text-decoration:none!important}
+#products li.product .description{display:block!important;visibility:visible!important;opacity:1!important;color:#555!important;font-size:14px!important;line-height:1.6!important;margin-top:8px!important}
+#products li.product .buttons{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;margin-top:14px!important}
+#products li.product .button{display:inline-block!important;visibility:visible!important;opacity:1!important;background:#F5B400!important;color:#151515!important;font-weight:700!important;padding:10px 18px!important;border-radius:4px!important;text-decoration:none!important}
+#products li.product .specs{display:block!important;visibility:visible!important;opacity:1!important;background:#f4f4f4!important;border-radius:6px!important;padding:10px!important;list-style:none!important;margin:0!important}
+#products li.product .spec{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #e5e5e5;padding:4px 0}
+#products li.product .specName{color:#667085}
+#products li.product .specValue{font-weight:600;color:#151515;text-align:right}
+@media(max-width:700px){#products li.product{padding:14px}#products li.product .name{font-size:21px!important}}
