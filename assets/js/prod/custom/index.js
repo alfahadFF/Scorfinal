@@ -32,7 +32,7 @@ $(function(){
         });
     }
 
-    var lng = $SITE.lang.includes('-') ? $SITE.lang.split('-')[1] : $SITE.lang;
+    var lng = (document.documentElement.lang || '').toLowerCase().indexOf('ar') === 0 ? 'AR' : ($SITE.lang.includes('-') ? $SITE.lang.split('-')[1] : $SITE.lang);
 
     var texts = []
     switch(lng.toUpperCase()){
@@ -50,6 +50,9 @@ $(function(){
             break;
         case "RU":
             texts = ["МОЩНОСТИ","ВОЗМОЖНОСТЕЙ","ПРОИЗВОДИТЕЛЬНОСТИ","ТЕХНОЛОГИЙ"];
+            break;
+        case "AR":
+            texts = ["القوة","القدرة","الأداء","التقنية"];
             break;
         default:
             texts = ["POWER","ABILITY","PERFORMANCE","TECHNOLOGY"];
