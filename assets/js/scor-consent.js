@@ -17,14 +17,32 @@
     reset: function () { try { localStorage.removeItem(KEY); } catch (e) {} show(); }
   };
   var banner = null;
-  var AR = (document.documentElement.lang || '').toLowerCase().indexOf('ar') === 0;
-  var T = AR ? {
+  var LANG = (document.documentElement.lang || 'en').toLowerCase().split('-')[0];
+  var AR = LANG === 'ar';
+  var STRINGS = {
+    ar: {
       label: 'موافقة ملفات تعريف الارتباط',
       head: 'نحن نقدّر خصوصيتك.',
       body: 'نستخدم ملفات تعريف الارتباط لتحسين تجربة تصفحك وتحليل حركة الموقع. يمكنك قبول أو رفض ملفات تعريف الارتباط غير الأساسية. اقرأ ',
       policy: 'سياسة الخصوصية',
       reject: 'رفض', accept: 'قبول الكل', settings: 'إعدادات ملفات تعريف الارتباط'
-    } : {
+    },
+    de: {
+      label: 'Cookie-Einwilligung',
+      head: 'Wir respektieren Ihre Privatsphäre.',
+      body: 'Wir verwenden Cookies, um Ihr Surferlebnis zu verbessern und den Website-Verkehr zu analysieren. Sie können nicht wesentliche Cookies akzeptieren oder ablehnen. Lesen Sie unsere ',
+      policy: 'Datenschutzrichtlinie',
+      reject: 'Ablehnen', accept: 'Alle akzeptieren', settings: 'Cookie-Einstellungen'
+    },
+    tr: {
+      label: 'Çerez onayı',
+      head: 'Gizliliğinize değer veriyoruz.',
+      body: 'Tarama deneyiminizi iyileştirmek ve site trafiğini analiz etmek için çerezler kullanıyoruz. Zorunlu olmayan çerezleri kabul edebilir veya reddedebilirsiniz. Şunu okuyun: ',
+      policy: 'Gizlilik Politikası',
+      reject: 'Reddet', accept: 'Tümünü Kabul Et', settings: 'Çerez Ayarları'
+    }
+  };
+  var T = STRINGS[LANG] || {
       label: 'Cookie consent',
       head: 'We value your privacy.',
       body: 'We use cookies to improve your browsing experience and to analyse site traffic. You can accept or reject non-essential cookies. Read our ',

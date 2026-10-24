@@ -21,13 +21,13 @@
     var saved = null;
     try { saved = localStorage.getItem(KEY); } catch (err) {}
     if (saved) {
-        if (saved === 'ar') location.replace('/ar/');
+        if (saved === 'ar' || saved === 'de' || saved === 'tr') location.replace('/' + saved + '/');
         return;
     }
     var langs = navigator.languages || [navigator.language || 'en'];
     for (var i = 0; i < langs.length; i++) {
         var l = (langs[i] || '').toLowerCase().split('-')[0];
-        if (l === 'ar') {
+        if (l === 'ar' || l === 'de' || l === 'tr') {
             try { localStorage.setItem(KEY, l); } catch (err) {}
             location.replace('/' + l + '/');
             return;

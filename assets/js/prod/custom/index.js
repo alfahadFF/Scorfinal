@@ -43,7 +43,7 @@ $(function(){
             texts = ["DEL PODER","DE LA CAPACIDAD","DEL RENDIMIENTO","DE LA TECNOLOGÍA"];
             break;
         case "DE":
-            texts = ["KRAFT","FÄHİGKEIT","LEISTUNG","TECHNOLOGIE"];
+            texts = ["KRAFT","FÄHIGKEIT","LEISTUNG","TECHNOLOGIE"];
             break;
         case "FR":
             texts = ["DE LA PUISSANCE","DE CAPACITÉ","DE PERFORMANCE","DE LA TECHNOLOGIE"];
