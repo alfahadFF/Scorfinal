@@ -142,3 +142,11 @@ footer .logo img, .sf-brand img { height: 30px !important; width: auto !importan
 @media (max-width:760px){
   .page-index .sections .section:last-child .title{padding-inline-end:10px!important}
 }
+
+/* Tagline vs logo collision (mobile header): below 641px the fixed
+   tagline (top:53px) lands inside the logo box (logo bottom ~83px).
+   The motto stays present in the homepage hero chip, so hide the
+   header tagline on small phones only; 641px+ verified collision-free. */
+@media (max-width:640px){
+  header .scor-tagline{display:none!important}
+}
