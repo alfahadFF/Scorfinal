@@ -150,3 +150,16 @@ footer .logo img, .sf-brand img { height: 30px !important; width: auto !importan
 @media (max-width:640px){
   header .scor-tagline{display:none!important}
 }
+
+/* Mobile logo crop fix: the fixed logo link sat at x=-16 (off-canvas) on
+   phones, clipping the S. Center it in the header band, clear of the pill. */
+@media (max-width:640px){
+  header .logoWrapper{left:50%!important;right:auto!important;margin-left:0!important;transform:translateX(-50%)!important;width:auto!important;max-width:62vw!important}
+  header .logoWrapper img{height:34px!important;max-width:62vw!important}
+}
+
+/* Mobile LTR: pill sits at the screen-end top-right over the page band, not
+   over the centered logo (RTL keeps its verified left-side spot) */
+@media (max-width:640px){
+  html:not([dir="rtl"]) .scor-lang-btn{top:12px!important}
+}
