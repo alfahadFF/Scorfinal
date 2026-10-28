@@ -454,7 +454,7 @@
 <div class="columns small-12">
 <div class="row align-center">
 <div class="columns small-11 medium-11 large-9">
-<form action="/en/ajax/forms/1" class="aclear" id="contactForm" method="post">
+<form id="contactForm" class="aclear" method="post" action="/api/contact.php"><p style="display:none"><label>Don’t fill this out if you’re human: <input name="bot-field"/></label></p>
 <div class="inputs aclear">
 <div class="row">
 <div class="columns small-12 medium-6">
@@ -480,7 +480,7 @@
 </div>
 <div class="columns small-12 medium-6">
 <div>
-<input class="input" data-validation="email" data-validation-error-msg="Please enter valid e-mail address." name="email" placeholder="E-mail address" type="text"/>
+<input class="input" data-validation="email" data-validation-error-msg="Please enter valid e-mail address." name="email" placeholder="E-mail address" type="email"/>
 </div>
 <div>
 <select id="input_subject_type" name="type_primary">
@@ -513,7 +513,7 @@
 </div>
 <div class="aggreement">
 <div class="row">
-<div class="columns shrink"><input name="aggreement" type="checkbox" value="1"/></div>
+<div class="columns shrink"><input name="aggreement" type="checkbox" value="1" required/></div>
 <div class="columns">
                                             I agree <a href="../../agreements/protection-of-personal-data.html" target="_blank">privacy policy</a> and general <a href="../../agreements/conditions-for-use.html" target="_blank">cookie policy</a>.                                        </div>
 </div>
@@ -522,7 +522,7 @@
 <input name="ref" type="hidden" value="https://www.scor-sy.de/en/products/skid-steer-loaders/sy40"/>
 <input name="product_id" type="hidden" value=""/>
 <input name="recaptcha" type="hidden" value="recaptcha"/>
-<a class="button floatRight" href="#">SEND</a>
+<button class="button floatRight" type="submit">SEND</button>
 </div>
 </div>
 </div>
@@ -892,5 +892,5 @@
 <script data-privacy="../../services/protection-of-personal-data.html" defer="" src="../../../assets/js/scor-consent.js"></script>
 <script src="../../../assets/js/scor-lang.js"></script>
 <script src="../../../assets/js/scor-gallery.js"></script>
-<script src="../../../assets/js/scor-langbtn.js"></script></body>
+<script src="../../../assets/js/scor-langbtn.js"></script><script src="/assets/js/scor-contact.js"></script></body>
 </html>
