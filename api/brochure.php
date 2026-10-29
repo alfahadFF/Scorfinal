@@ -161,7 +161,7 @@ $L = [
 ][$lang];
 $rtl = $lang === 'ar';
 $GLOBALS['lang'] = $lang; $GLOBALS['rtl'] = $rtl;
-$font = 'Berlin';
+$font = 'scorfont';
 $logo = $ROOT . '/assets/img/companies/scor-logo-white.png';
 $stripes = $ROOT . '/assets/img/brochure/header-band.png';
 $wedge = $ROOT . '/assets/img/brochure/wedge.png';
@@ -184,7 +184,8 @@ function groupTable($g, $wedge) {
         foreach ($g['rows'] as $r) {
             $L = letterOf($r[0]);
             $cls = ($i++ % 2) ? ' class="alt"' : '';
-            $h .= "<tr$cls><td class=\"c1 sym\">" . $L . '</td><td class="c2">' . htmlspecialchars($lg[$L] ?? '') . '</td><td class="c3">' . htmlspecialchars($r[1]) . '</td></tr>';
+            $v3 = str_replace('\u{2713}', '<span style="font-family:dejavusans">&#10003;</span>', htmlspecialchars($r[1]));
+            $h .= "<tr$cls><td class=\"c1 sym\">" . $L . '</td><td class="c2">' . htmlspecialchars($lg[$L] ?? '') . '</td><td class="c3">' . $v3 . '</td></tr>';
         }
         return $h . '</table></td></tr></table>';
     }
@@ -198,13 +199,16 @@ function groupTable($g, $wedge) {
     $i = 0;
     foreach ($g['rows'] as $r) {
         $cls = ($i++ % 2) ? ' class="alt"' : '';
-        $h .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . htmlspecialchars($r[1]) . '</td></tr>';
+        $v = str_replace('\u{2713}', '<span style="font-family:dejavusans">&#10003;</span>', htmlspecialchars($r[1]));
+        $h .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . $v . '</td></tr>';
     }
     return $h . '</table></td></tr></table>';
 }
 function estH($g) {
+    $kd = $GLOBALS['rtl'] ? 24 : 30;
+    $vd = $GLOBALS['rtl'] ? 30 : 38;
     $h = 2.4;
-    foreach ($g['rows'] as $r) $h += 1 + intdiv(mb_strlen($r[0]), 30) + intdiv(mb_strlen($r[1]), 40);
+    foreach ($g['rows'] as $r) $h += 1 + intdiv(mb_strlen($r[0]), $kd) + intdiv(mb_strlen($r[1]), $vd);
     return $h;
 }
 function columns($gs, $wedge) {
@@ -240,6 +244,40 @@ $foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="ba
       . '<td class="fc" width="15%">' . $pin . '<b>' . $L['daraa'] . '</b><br/>00963941435541</td>'
       . '<td class="fc" width="14%">www.scor-sy.de<br/>info@scor-sy.de</td></tr></table>';
 
+/* fill-the-page density: estimate column heights and stretch row padding */
+function colUnits($gs) {
+    if (count($gs) === 1 && count($gs[0]['rows']) > 12) {
+        $half = (int) ceil(count($gs[0]['rows']) / 2);
+        $gs = [
+            ['title' => $gs[0]['title'], 'rows' => array_slice($gs[0]['rows'], 0, $half)],
+            ['title' => '', 'rows' => array_slice($gs[0]['rows'], $half)],
+        ];
+    }
+    $wa = 0; $wb = 0;
+    foreach ($gs as $g) { if ($wa <= $wb) $wa += estH($g); else $wb += estH($g); }
+    return max($wa, $wb);
+}
+$BODYH = 297 - (int) round($bandH + 5) - 24;
+$heroH = 0;
+if ($hero) { $hs = getimagesize($hero); if ($hs) $heroH = min(56, $heroW * $hs[1] / $hs[0]) + 3; }
+elseif ($intro) $heroH = 20;
+$avail1 = $BODYH - 15 - $heroH;
+$units1 = colUnits($p1);
+$pad1 = 1.0;
+foreach ([1.9, 1.65, 1.4, 1.2, 1.05] as $cand) {
+    if ($units1 * (3.4 + 2 * $cand) <= $avail1 * 0.94) { $pad1 = $cand; break; }
+}
+$drawCap = 64; $drawH = 0;
+if ($drawing) { $ds = getimagesize($drawing); if ($ds) $drawH = min($drawCap, 190 * $ds[1] / $ds[0]) + 4; }
+$notesH = $noteLines || true ? 0 : 0;
+$avail2 = $BODYH - 15 - $drawH;
+$units2 = colUnits($dims);
+$pad2 = 1.0;
+foreach ([1.9, 1.65, 1.4, 1.2, 1.05] as $cand) {
+    if ($units2 * (3.4 + 2 * $cand) + 34 <= $avail2 * 0.94) { $pad2 = $cand; break; }
+}
+if ($drawing && $units2 * (3.4 + 2 * $pad2) + 34 <= $avail2 - 40) $drawCap = 82;
+
 $title = '<div class="model">' . htmlspecialchars($display) . '</div>';
 $p1html = $title;
 $p1rows = 0; foreach ($p1 as $g) $p1rows += count($g['rows']);
@@ -254,7 +292,7 @@ $p1html .= columns($p1, $wedge);
 
 $p2html = $title;
 if ($drawing) {
-    $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:64mm;max-width:100%" /></div>';
+    $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:' . $drawCap . 'mm;max-width:100%" /></div>';
 }
 $p2html .= columns($dims, $wedge);
 $noteRows = $noteLines;
@@ -278,17 +316,17 @@ body { font-family: ' . $font . '; color:#151515; }
 .grp { margin-bottom:3.5mm; }
 .gh { background:#151515; color:#fff; font-weight:bold; font-size:11pt; padding:1.5mm 3mm; }
 .gh-w { background:#151515; width:9mm; }
-.rows td { font-size:10pt; padding:1.0mm 2.6mm; border-bottom:0.2mm solid #d9d9d9; }
+.rows td { font-size:10pt; font-weight:bold; padding:1.0mm 2.6mm; border-bottom:0.2mm solid #d9d9d9; }
 .rows tr.alt td { background:#e9e9e9; }
 .rows td.k { font-weight:bold; width:52%; }
 .draw { text-align:center; padding:2mm 0 4mm; }
 .rows3 td.c1 { width:11%; text-align:center; }
-.rows3 td.c2 { width:57%; font-weight:normal; }
+.rows3 td.c2 { width:57%; }
 .rows3 td.c3 { width:32%; font-weight:bold; }
 .rows3 td.sym { font-weight:bold; font-size:11pt; }
 .rows3 tr.ch td { background:#3a3a3a; color:#fff; font-weight:bold; font-size:9pt; }
 .nbox { background:#f2f2f2; padding:2.5mm 3mm; }
-.nline { font-size:8pt; line-height:1.6; }
+.nline { font-size:9pt; font-weight:bold; line-height:1.7; }
 .fb { color:#f5b400; font-size:7pt; padding-top:1.2mm; }
 .fc { color:#fff; font-size:7.3pt; line-height:1.55; padding:3mm 2mm; vertical-align:top; }
 .fc b { color:#f5b400; }
@@ -302,9 +340,9 @@ $mpdf = new \Mpdf\Mpdf([
     'margin_left' => 9, 'margin_right' => 9, 'margin_top' => (int) round($bandH + 5), 'margin_bottom' => 24,
     'margin_header' => 0, 'margin_footer' => 0,
     'fontDir' => array_merge($cfg['fontDir'], [__DIR__ . '/fonts']),
-    'fontdata' => $fontData + ['Berlin' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'I' => 'Cairo-400.ttf', 'BI' => 'Cairo-700.ttf'], 'Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
+    'fontdata' => $fontData + ['scorfont' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'I' => 'Cairo-400.ttf', 'BI' => 'Cairo-700.ttf', 'useOTL' => 0xFF], 'Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
     'default_font' => $font,
-    'tempDir' => __DIR__ . '/mpdf/tmp',
+    'tempDir' => __DIR__ . '/mpdf/tmp3',
 ]);
 if ($rtl) $mpdf->SetDirectionality('rtl');
 $mpdf->SetTitle($display . ' — SCOR Brochure');
@@ -313,9 +351,11 @@ $foot1 = '<img src="' . $footBand . '" style="width:210mm;margin-left:-9mm" />';
 $mpdf->SetHTMLHeader($band);
 $mpdf->SetHTMLFooter($foot1);
 try {
-    $mpdf->WriteHTML('<style>' . $css . '</style>' . $p1html . '<pagebreak />');
+    $dens1 = '.rows td{padding:' . $pad1 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad1 - 1) * 3) . 'mm}';
+    $dens2 = '.rows td{padding:' . $pad2 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad2 - 1) * 3) . 'mm}';
+    $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html . '<pagebreak />');
     $mpdf->SetHTMLFooter($foot);
-    $mpdf->WriteHTML($p2html);
+    $mpdf->WriteHTML('<style>' . $dens2 . '</style>' . $p2html);
 } catch (Throwable $e) {
     while (ob_get_level()) ob_end_clean();
     http_response_code(500);
