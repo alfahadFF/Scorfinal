@@ -44,8 +44,8 @@ $code = trim($code) !== '' ? trim($code) : strtoupper($model);
 $code = preg_replace('/([A-Za-z])\s+(\d)/', '$1$2', $code);
 $display = 'SCOR ' . $code;
 $intro = xtext($xp, '(//div[contains(concat(" ",normalize-space(@class)," ")," description ")])[1]');
-if (mb_strlen($intro) > 380) {
-    $intro = rtrim(mb_substr($intro, 0, 380));
+if (mb_strlen($intro) > 300) {
+    $intro = rtrim(mb_substr($intro, 0, 300));
     $intro = preg_replace('/\s+\S*$/', '', $intro) . '…';
 }
 
@@ -138,6 +138,14 @@ $COLHEADS = [
 function letterOf($key) {
     return preg_match('/^(?:البعد|Dimension|Abmessung|Boyut)\s+([A-S])$/u', trim($key), $m) ? $m[1] : null;
 }
+function isListGroup($g) {
+    if (!$g['rows']) return false;
+    foreach ($g['rows'] as $r) {
+        $v = trim((string)$r[1]);
+        if ($v !== '' && $v !== '✓' && $v !== '✔') return false;
+    }
+    return true;
+}
 function isLetterGroup($g) {
     if (count($g['rows']) < 5) return false;
     $n = 0;
@@ -196,6 +204,15 @@ function groupTable($g, $wedge) {
         $t = '<td class="gh">' . htmlspecialchars($g['title']) . '</td>';
         $h .= '<tr>' . ($GLOBALS['rtl'] ? $t . $w : $w . $t) . '</tr>';
     }
+    if (isListGroup($g)) {
+        $h .= '<tr><td colspan="2"><table class="rows" width="100%" cellpadding="0" cellspacing="0">';
+        $i = 0;
+        foreach ($g['rows'] as $r) {
+            $cls = ($i++ % 2) ? ' class="alt"' : '';
+            $h .= "<tr$cls><td class=\"one\">" . htmlspecialchars($r[0]) . '</td></tr>';
+        }
+        return $h . '</table></td></tr></table>';
+    }
     $h .= '<tr><td colspan="2"><table class="rows" width="100%" cellpadding="0" cellspacing="0">';
     $i = 0;
     foreach ($g['rows'] as $r) {
@@ -206,9 +223,14 @@ function groupTable($g, $wedge) {
     return $h . '</table></td></tr></table>';
 }
 function estH($g) {
+    $h = 2.4;
+    if (isListGroup($g)) {
+        $od = $GLOBALS['rtl'] ? 44 : 56;
+        foreach ($g['rows'] as $r) $h += 1 + intdiv(mb_strlen($r[0]), $od);
+        return $h;
+    }
     $kd = $GLOBALS['rtl'] ? 24 : 30;
     $vd = $GLOBALS['rtl'] ? 30 : 38;
-    $h = 2.4;
     foreach ($g['rows'] as $r) $h += 1 + intdiv(mb_strlen($r[0]), $kd) + intdiv(mb_strlen($r[1]), $vd);
     return $h;
 }
@@ -259,9 +281,8 @@ foreach ($p1 as $gi => $g) {
 $p1 = array_values(array_filter($p1, function ($g) { return $g['rows']; }));
 $noteRows = $noteLines;
 if (count($noteRows) < 2) foreach ($L['legal'] as $line) $noteRows[] = $line;
-$p2groups = $dims;
-if (count($angleRows) >= 2) $p2groups[] = ['title' => $ANGLES, 'rows' => $angleRows];
-if ($noteRows) $p2groups[] = ['title' => $L['notes'], 'rows' => array_map(function ($n) { return [$n, '']; }, $noteRows)];
+$anglesG = count($angleRows) >= 2 ? ['title' => $ANGLES, 'rows' => $angleRows] : null;
+$notesG = $noteRows ? ['title' => $L['notes'], 'rows' => array_map(function ($n) { return [$n, '']; }, $noteRows)] : null;
 
 /* fill-the-page density: estimate column heights and stretch row padding */
 function colUnits($gs) {
@@ -276,51 +297,49 @@ function colUnits($gs) {
     foreach ($gs as $g) { if ($wa <= $wb) $wa += estH($g); else $wb += estH($g); }
     return max($wa, $wb);
 }
-$BODYH = 297 - (int) round($bandH + 5) - 24;
-$heroH = 0;
-if ($hero) { $hs = getimagesize($hero); if ($hs) $heroH = min(56, $heroW * $hs[1] / $hs[0]) + 3; }
-elseif ($intro) $heroH = 20;
-$avail1 = $BODYH - 15 - $heroH;
+$heroCap = 50;
+$BODYH = 297 - (int) round($bandH + 3) - 24;
+$p1rows = 0; foreach ($p1 as $g) $p1rows += count($g['rows']);
+$heroW = $p1rows <= 26 ? 92 : ($p1rows <= 42 ? 84 : 78);
+$heroImgH = 0;
+if ($hero) { $hs = getimagesize($hero); if ($hs) $heroImgH = min($heroCap, $heroW * $hs[1] / $hs[0]); }
+if ($hero) $topH = max($heroImgH, $intro ? 4 + 7 * (1 + intdiv(mb_strlen($intro), $rtl ? 52 : 68)) : 0) + 3;
+else $topH = $intro ? 5 + 7 * (1 + intdiv(mb_strlen($intro), $rtl ? 95 : 115)) : 0;
+$avail1 = $BODYH - 14 - $topH;
 $units1 = colUnits($p1);
-$pad1 = 1.0;
-foreach ([1.9, 1.65, 1.4, 1.2, 1.05] as $cand) {
+$pad1 = 0.8;
+foreach ([1.9, 1.65, 1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
     if ($units1 * (3.4 + 2 * $cand) <= $avail1 * 0.94) { $pad1 = $cand; break; }
 }
+/* if page 1 still overflows at the tightest padding, shift trailing groups to page 2 */
+$moved = [];
+while (count($p1) > 1) {
+    $est = colUnits($p1) * (3.4 + 2 * $pad1) + count($p1) * (3 + ($pad1 - 1) * 3);
+    if ($est <= $avail1) break;
+    $moved[] = array_pop($p1);
+    $units1 = colUnits($p1); $pad1 = 0.8;
+    foreach ([1.9, 1.65, 1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
+        if ($units1 * (3.4 + 2 * $cand) <= $avail1 * 0.94) { $pad1 = $cand; break; }
+    }
+}
+$p2groups = array_merge($dims, array_reverse($moved), $anglesG ? [$anglesG] : [], $notesG ? [$notesG] : []);
 $drawCap = 84; $drawH = 0;
 if ($drawing) { $ds = getimagesize($drawing); if ($ds) $drawH = min($drawCap, 190 * $ds[1] / $ds[0]) + 4; }
 $notesH = $noteLines || true ? 0 : 0;
 $avail2 = $BODYH - 15 - $drawH;
 $units2 = colUnits($p2groups);
-$pad2 = 1.0;
-foreach ([1.9, 1.65, 1.4, 1.2, 1.05] as $cand) {
+$pad2 = 0.8;
+foreach ([1.9, 1.65, 1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
     if ($units2 * (3.4 + 2 * $cand) + 34 <= $avail2 * 0.94) { $pad2 = $cand; break; }
 }
 if ($drawing && $units2 * (3.4 + 2 * $pad2) + 34 <= $avail2 - 40) $drawCap = 98;
 
 $title = '<div class="model">' . htmlspecialchars($display) . '</div>';
-$p1html = $title;
-$p1rows = 0; foreach ($p1 as $g) $p1rows += count($g['rows']);
-$heroW = $p1rows <= 26 ? 94 : ($p1rows <= 42 ? 86 : 79);
-if ($hero || $intro) {
-    $photoCell = $hero ? '<td class="ph" style="width:' . ($heroW + 2) . 'mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:56mm" /></td>' : '';
-    $textCell = '<td class="tx">' . htmlspecialchars($intro) . '</td>';
-    $cells = $rtl ? $photoCell . $textCell : $textCell . $photoCell;
-    $p1html .= '<table class="hero" width="100%" cellpadding="0" cellspacing="0"><tr>' . $cells . '</tr></table>';
-}
-$p1html .= columns($p1, $wedge);
-
-$p2html = $title;
-if ($drawing) {
-    $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:' . $drawCap . 'mm;max-width:100%" /></div>';
-}
-$p2html .= columns($p2groups, $wedge);
-
 
 $css = '
 body { font-family: ' . $font . '; color:#151515; }
-.model { font-size:25pt; font-weight:bold; color:#4a4a4a; padding:2mm 0 3mm; ' . ($rtl ? 'text-align:right;' : '') . ' }
+.model { font-size:22pt; font-weight:bold; color:#4a4a4a; padding:1mm 0 2mm; ' . ($rtl ? 'text-align:right;' : '') . ' }
 .hero td { vertical-align:top; }
-.hero .ph { width:88mm; }
 .hero .tx { font-size:10.5pt; font-weight:bold; line-height:1.9; padding:1mm 4mm; }
 .cols td.col { width:48.5%; vertical-align:top; }
 .cols td.gap { width:3%; }
@@ -329,7 +348,9 @@ body { font-family: ' . $font . '; color:#151515; }
 .gh-w { background:#151515; width:9mm; }
 .rows td { font-size:10pt; font-weight:bold; padding:1.0mm 2.6mm; border-bottom:0.2mm solid #d9d9d9; }
 .rows tr.alt td { background:#e9e9e9; }
-.rows td.k { font-weight:bold; width:52%; }
+.rows td.k { font-weight:bold; width:55%; }
+.rows td.v { width:45%; }
+.rows td.one { font-weight:bold; }
 .draw { text-align:center; padding:2mm 0 4mm; }
 .rows3 td.c1 { width:11%; text-align:center; }
 .rows3 td.c2 { width:57%; }
@@ -343,35 +364,113 @@ body { font-family: ' . $font . '; color:#151515; }
 .fc b { color:#f5b400; }
 ';
 
-/* ---------------- render -------------------------------------------------- */
+/* ---------------- render (closed-loop: measure real page count, adjust until exactly 2 pages) */
 $cfg = (new \Mpdf\Config\ConfigVariables())->getDefaults();
 $fontData = (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'];
-$mpdf = new \Mpdf\Mpdf([
-    'mode' => 'utf-8', 'format' => 'A4',
-    'margin_left' => 9, 'margin_right' => 9, 'margin_top' => (int) round($bandH + 5), 'margin_bottom' => 24,
-    'margin_header' => 0, 'margin_footer' => 0,
-    'fontDir' => array_merge($cfg['fontDir'], [__DIR__ . '/fonts']),
-    'fontdata' => $fontData + ['scorfont' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'I' => 'Cairo-400.ttf', 'BI' => 'Cairo-700.ttf', 'useOTL' => 0xFF], 'Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
-    'default_font' => $font,
-    'tempDir' => __DIR__ . '/mpdf/tmp3',
-]);
-if ($rtl) $mpdf->SetDirectionality('rtl');
-$mpdf->SetTitle($display . ' — SCOR Brochure');
 $customFoot = $ROOT . '/assets/img/brochure/footer-custom.png';
 $footBand = is_file($customFoot) ? $customFoot : $ROOT . '/assets/img/brochure/footer-band.png';
 $foot1 = '<img src="' . $footBand . '" style="width:210mm;margin-left:-9mm" />';
-$mpdf->SetHTMLHeader($band);
-$mpdf->SetHTMLFooter($foot1);
-try {
-    $dens1 = '.rows td{padding:' . $pad1 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad1 - 1) * 3) . 'mm}';
-    $dens2 = '.rows td{padding:' . $pad2 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad2 - 1) * 3) . 'mm}';
-    $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html . '<pagebreak />');
-    $mpdf->SetHTMLFooter($foot);
-    $mpdf->WriteHTML('<style>' . $dens2 . '</style>' . $p2html);
-} catch (Throwable $e) {
-    while (ob_get_level()) ob_end_clean();
-    http_response_code(500);
-    exit('Brochure generation failed.');
+$smallFont = false;
+$loopMoved = 0;
+$mpdf = null;
+$phase = 'fit';
+$ok1 = $pad1; $ok2 = $pad2;
+$tries = 0;
+while ($tries++ < 14) {
+    $p1html = $title;
+    if ($hero || $intro) {
+        $photoCell = $hero ? '<td class="ph" style="width:' . ($heroW + 2) . 'mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:' . $heroCap . 'mm" /></td>' : '';
+        $textCell = '<td class="tx">' . htmlspecialchars($intro) . '</td>';
+        $cells = $rtl ? $photoCell . $textCell : $textCell . $photoCell;
+        $p1html .= '<table class="hero" width="100%" cellpadding="0" cellspacing="0"><tr>' . $cells . '</tr></table>';
+    }
+    $p1html .= columns($p1, $wedge);
+    $p2html = $title;
+    if ($drawing) $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:' . $drawCap . 'mm;max-width:100%" /></div>';
+    $p2html .= columns($p2groups, $wedge);
+
+    $mpdf = new \Mpdf\Mpdf([
+        'mode' => 'utf-8', 'format' => 'A4',
+        'margin_left' => 9, 'margin_right' => 9, 'margin_top' => (int) round($bandH + 3), 'margin_bottom' => 24,
+        'margin_header' => 0, 'margin_footer' => 0,
+        'fontDir' => array_merge($cfg['fontDir'], [__DIR__ . '/fonts']),
+        'fontdata' => $fontData + ['scorfont' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'I' => 'Cairo-400.ttf', 'BI' => 'Cairo-700.ttf', 'useOTL' => 0xFF], 'Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
+        'default_font' => $font,
+        'tempDir' => __DIR__ . '/mpdf/tmp3',
+    ]);
+    if ($rtl) $mpdf->SetDirectionality('rtl');
+    $mpdf->SetTitle($display . ' — SCOR Brochure');
+    $mpdf->SetHTMLHeader($band);
+    $mpdf->SetHTMLFooter($foot1);
+    $fsx = $smallFont ? '.rows td{font-size:9.4pt}' : '';
+    $dens1 = '.rows td{padding:' . $pad1 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad1 - 1) * 3) . 'mm}' . $fsx;
+    $dens2 = '.rows td{padding:' . $pad2 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad2 - 1) * 3) . 'mm}' . $fsx;
+    try {
+        $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html . '<pagebreak />');
+        $over1 = $mpdf->page > 2;
+        $over2 = false;
+        if (!$over1) {
+            $mpdf->SetHTMLFooter($foot);
+            $mpdf->WriteHTML('<style>' . $dens2 . '</style>' . $p2html);
+            $over2 = $mpdf->page > 2;
+        }
+    } catch (Throwable $e) {
+        while (ob_get_level()) ob_end_clean();
+        http_response_code(500);
+        exit('Brochure generation failed.');
+    }
+    if ($over1 || $over2) {
+        if ($phase === 's1') { $pad1 = $ok1; $phase = 's2'; if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); } continue; }
+        if ($phase === 's2') { $pad2 = $ok2; $phase = 'done'; continue; }
+        if ($phase !== 'fit') break;
+        if ($over1) {
+            if (count($p1) > 1) {
+                $g = array_pop($p1);
+                array_splice($p2groups, count($dims) + $loopMoved, 0, [$g]);
+                $loopMoved++;
+            } elseif ($pad1 > 0.62) $pad1 = max(0.62, round($pad1 - 0.13, 2));
+            elseif ($heroCap > 34) $heroCap -= 8;
+            else break;
+        } else {
+            if ($drawing && $drawCap > 36) $drawCap -= 14;
+            elseif ($pad2 > 0.62) $pad2 = max(0.62, round($pad2 - 0.13, 2));
+            else {
+                $big = -1; $bigH = 0;
+                foreach ($p2groups as $gi => $g) {
+                    if (count($g['rows']) > 6 && estH($g) > $bigH) { $bigH = estH($g); $big = $gi; }
+                }
+                if ($big >= 0) {
+                    $half = (int) ceil(count($p2groups[$big]['rows']) / 2);
+                    $second = ['title' => '', 'rows' => array_slice($p2groups[$big]['rows'], $half)];
+                    $p2groups[$big]['rows'] = array_slice($p2groups[$big]['rows'], 0, $half);
+                    array_splice($p2groups, $big + 1, 0, [$second]);
+                } elseif (!$smallFont) $smallFont = true;
+                else break;
+            }
+        }
+        continue;
+    }
+    /* rendered at exactly 2 pages with the current pads */
+    if ($phase === 'fit') {
+        $ok1 = $pad1; $ok2 = $pad2; $phase = 's1';
+        if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+        $phase = 's2';
+        if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); continue; }
+        break;
+    }
+    if ($phase === 's1') {
+        $ok1 = $pad1;
+        if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+        $phase = 's2';
+        if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); continue; }
+        break;
+    }
+    if ($phase === 's2') {
+        $ok2 = $pad2;
+        if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); continue; }
+        break;
+    }
+    break;
 }
 $file = 'SCOR_' . preg_replace('/\s+/', '', $code) . '_Brochure_' . strtoupper($lang) . '.pdf';
 while (ob_get_level()) ob_end_clean();
