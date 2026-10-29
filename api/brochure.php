@@ -11,7 +11,8 @@ ob_start();
 ini_set('display_errors', '0');
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 
-$ROOT = rtrim($_SERVER['DOCUMENT_ROOT'] ?? dirname(__DIR__), '/');
+$ROOT = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+if ($ROOT === '') $ROOT = dirname(__DIR__);
 $LANGS = ['en', 'ar', 'de', 'tr'];
 $lang = $_GET['lang'] ?? 'en';
 $cat  = $_GET['cat'] ?? '';
@@ -244,6 +245,24 @@ $foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="ba
       . '<td class="fc" width="15%">' . $pin . '<b>' . $L['daraa'] . '</b><br/>00963941435541</td>'
       . '<td class="fc" width="14%">www.scor-sy.de<br/>info@scor-sy.de</td></tr></table>';
 
+/* move angle rows out of page-1 groups into a page-2 Working Angles group */
+$ANGLES = ['ar' => 'زوايا العمل', 'en' => 'Working Angles', 'de' => 'Arbeitswinkel', 'tr' => 'Çalışma Açıları'][$lang];
+$angleRows = [];
+foreach ($p1 as $gi => $g) {
+    $keep = [];
+    foreach ($g['rows'] as $r) {
+        if (preg_match('/زاوية|angle|winkel|açı/i', $r[0])) $angleRows[] = $r;
+        else $keep[] = $r;
+    }
+    $p1[$gi]['rows'] = $keep;
+}
+$p1 = array_values(array_filter($p1, function ($g) { return $g['rows']; }));
+$noteRows = $noteLines;
+if (count($noteRows) < 2) foreach ($L['legal'] as $line) $noteRows[] = $line;
+$p2groups = $dims;
+if (count($angleRows) >= 2) $p2groups[] = ['title' => $ANGLES, 'rows' => $angleRows];
+if ($noteRows) $p2groups[] = ['title' => $L['notes'], 'rows' => array_map(function ($n) { return [$n, '']; }, $noteRows)];
+
 /* fill-the-page density: estimate column heights and stretch row padding */
 function colUnits($gs) {
     if (count($gs) === 1 && count($gs[0]['rows']) > 12) {
@@ -267,16 +286,16 @@ $pad1 = 1.0;
 foreach ([1.9, 1.65, 1.4, 1.2, 1.05] as $cand) {
     if ($units1 * (3.4 + 2 * $cand) <= $avail1 * 0.94) { $pad1 = $cand; break; }
 }
-$drawCap = 64; $drawH = 0;
+$drawCap = 84; $drawH = 0;
 if ($drawing) { $ds = getimagesize($drawing); if ($ds) $drawH = min($drawCap, 190 * $ds[1] / $ds[0]) + 4; }
 $notesH = $noteLines || true ? 0 : 0;
 $avail2 = $BODYH - 15 - $drawH;
-$units2 = colUnits($dims);
+$units2 = colUnits($p2groups);
 $pad2 = 1.0;
 foreach ([1.9, 1.65, 1.4, 1.2, 1.05] as $cand) {
     if ($units2 * (3.4 + 2 * $cand) + 34 <= $avail2 * 0.94) { $pad2 = $cand; break; }
 }
-if ($drawing && $units2 * (3.4 + 2 * $pad2) + 34 <= $avail2 - 40) $drawCap = 82;
+if ($drawing && $units2 * (3.4 + 2 * $pad2) + 34 <= $avail2 - 40) $drawCap = 98;
 
 $title = '<div class="model">' . htmlspecialchars($display) . '</div>';
 $p1html = $title;
@@ -294,16 +313,8 @@ $p2html = $title;
 if ($drawing) {
     $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:' . $drawCap . 'mm;max-width:100%" /></div>';
 }
-$p2html .= columns($dims, $wedge);
-$noteRows = $noteLines;
-if (count($noteRows) < 2) foreach ($L['legal'] as $line) $noteRows[] = $line;
-if ($noteRows) {
-    $items = implode('', array_map(function ($n) { return '<div class="nline">' . htmlspecialchars($n) . '</div>'; }, $noteRows));
-    $w = '<td class="gh-w"><img src="' . $wedge . '" width="9mm" /></td>';
-    $t = '<td class="gh">' . $L['notes'] . '</td>';
-    $p2html .= '<table class="grp" width="100%" cellpadding="0" cellspacing="0"><tr>' . ($rtl ? $t . $w : $w . $t) . '</tr>'
-             . '<tr><td colspan="2" class="nbox">' . $items . '</td></tr></table>';
-}
+$p2html .= columns($p2groups, $wedge);
+
 
 $css = '
 body { font-family: ' . $font . '; color:#151515; }
@@ -346,7 +357,8 @@ $mpdf = new \Mpdf\Mpdf([
 ]);
 if ($rtl) $mpdf->SetDirectionality('rtl');
 $mpdf->SetTitle($display . ' — SCOR Brochure');
-$footBand = $ROOT . '/assets/img/brochure/footer-band.png';
+$customFoot = $ROOT . '/assets/img/brochure/footer-custom.png';
+$footBand = is_file($customFoot) ? $customFoot : $ROOT . '/assets/img/brochure/footer-band.png';
 $foot1 = '<img src="' . $footBand . '" style="width:210mm;margin-left:-9mm" />';
 $mpdf->SetHTMLHeader($band);
 $mpdf->SetHTMLFooter($foot1);
