@@ -84,9 +84,24 @@ foreach ($xp->query('//img') as $im) {
 }
 if ($hero && !is_file($hero)) $hero = '';
 if ($drawing && !is_file($drawing)) $drawing = '';
-/* drawing may exist on disk without being referenced by the page */
-if (!$drawing && $hero) {
-    $cands = glob(dirname($hero) . '/d*.{jpg,jpeg,png,JPG,PNG}', GLOB_BRACE) ?: [];
+/* photos/drawings may live in a disk folder whose name differs from the
+   page slug (e.g. slug pump-pm-30 -> folder pm30) or not be referenced */
+$assetDir = $hero ? dirname($hero) : '';
+if (!$hero || !$drawing) {
+    $stem = preg_replace('/^(pump|mixer)-/', '', $model);
+    $dirs = array_unique([$model, str_replace('-', '', $model), $stem, str_replace('-', '', $stem)]);
+    foreach ($dirs as $d) {
+        $dir = $ROOT . '/assets/img/scor-products/' . $d;
+        if (!is_dir($dir)) continue;
+        if (!$hero) {
+            $ones = glob($dir . '/1.{jpg,jpeg,png,JPG,PNG}', GLOB_BRACE) ?: [];
+            if ($ones) { $hero = $ones[0]; $assetDir = $dir; }
+        }
+        if ($hero) break;
+    }
+}
+if (!$drawing && $assetDir) {
+    $cands = glob($assetDir . '/d*.{jpg,jpeg,png,JPG,PNG}', GLOB_BRACE) ?: [];
     sort($cands);
     if ($cands) $drawing = $cands[0];
 }
@@ -122,9 +137,9 @@ $L = [
    'notes' => 'ملاحظات', 'legal' => ['الأبعاد والمواصفات المذكورة تقريبية وقد تختلف حسب نوع الدلو أو الإطارات المستخدمة.', 'الصور والرسومات لأغراض توضيحية فقط.', 'تحتفظ شركة SCOR بالحق في إجراء أي تعديلات على المواصفات دون إشعار مسبق.']],
 ][$lang];
 $rtl = $lang === 'ar';
-$font = $rtl ? 'Tajawal' : 'dejavusans';
+$font = 'Berlin';
 $logo = $ROOT . '/assets/img/companies/scor-logo-white.png';
-$stripes = $ROOT . '/assets/img/brochure/stripes.png';
+$stripes = $ROOT . '/assets/img/brochure/header-band.png';
 $wedge = $ROOT . '/assets/img/brochure/wedge.png';
 
 /* ---------------- HTML builders ------------------------------------------ */
@@ -144,12 +159,24 @@ function groupTable($g, $wedge) {
     }
     return $h . '</table></td></tr></table>';
 }
+function estH($g) {
+    $h = 2.4;
+    foreach ($g['rows'] as $r) $h += 1 + intdiv(mb_strlen($r[0]), 30) + intdiv(mb_strlen($r[1]), 40);
+    return $h;
+}
 function columns($gs, $wedge) {
     if (!$gs) return '';
+    if (count($gs) === 1 && count($gs[0]['rows']) > 14) {
+        $half = (int) ceil(count($gs[0]['rows']) / 2);
+        $gs = [
+            ['title' => $gs[0]['title'], 'rows' => array_slice($gs[0]['rows'], 0, $half)],
+            ['title' => '', 'rows' => array_slice($gs[0]['rows'], $half)],
+        ];
+    }
     $colA = []; $colB = []; $wa = 0; $wb = 0;
     foreach ($gs as $g) {
-        if ($wa <= $wb) { $colA[] = $g; $wa += count($g['rows']) + 2; }
-        else { $colB[] = $g; $wb += count($g['rows']) + 2; }
+        if ($wa <= $wb) { $colA[] = $g; $wa += estH($g); }
+        else { $colB[] = $g; $wb += estH($g); }
     }
     $ca = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $colA));
     $cb = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $colB));
@@ -157,20 +184,21 @@ function columns($gs, $wedge) {
          . '<td class="col">' . $ca . '</td><td class="gap"></td><td class="col">' . $cb . '</td></tr></table>';
 }
 
-$band = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10"><tr>'
-      . '<td width="40%" style="padding:4mm 6mm"><img src="' . $logo . '" height="11mm" /></td>'
-      . '<td width="60%" align="right"><img src="' . $stripes . '" height="19mm" /></td></tr></table>';
-$foot = '<table width="100%" cellpadding="0" cellspacing="0" style="background:#0c0d10;border-top:1.2mm solid #f5b400"><tr>'
-      . '<td width="30%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">' . $L['brand'] . '</div></td>'
-      . '<td class="fc" width="24%"><b>' . $L['hq'] . '</b><br/>004915118316638<br/>004917634389434</td>'
-      . '<td class="fc" width="17%"><b>' . $L['homs'] . '</b><br/>00963939062887</td>'
-      . '<td class="fc" width="15%"><b>' . $L['daraa'] . '</b><br/>00963941435541</td>'
+$band = '<img src="' . $stripes . '" style="width:210mm;margin-left:-9mm" />';
+$pin = '<span style="color:#f5b400">&#8226;</span> ';
+$foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-9mm"><tr>'
+      . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">' . $L['brand'] . '<br/>SCOR Heavy Equipment &amp; International Shipping</div></td>'
+      . '<td class="fc" width="23%">' . $pin . '<b>' . $L['hq'] . '</b><br/>004915118316638<br/>004917634389434</td>'
+      . '<td class="fc" width="17%">' . $pin . '<b>' . $L['homs'] . '</b><br/>00963939062887</td>'
+      . '<td class="fc" width="15%">' . $pin . '<b>' . $L['daraa'] . '</b><br/>00963941435541</td>'
       . '<td class="fc" width="14%">www.scor-sy.de<br/>info@scor-sy.de</td></tr></table>';
 
 $title = '<div class="model">' . htmlspecialchars($display) . '</div>';
 $p1html = $title;
+$p1rows = 0; foreach ($p1 as $g) $p1rows += count($g['rows']);
+$heroW = $p1rows <= 26 ? 94 : ($p1rows <= 42 ? 86 : 79);
 if ($hero || $intro) {
-    $photoCell = $hero ? '<td class="ph"><img src="' . $hero . '" style="width:82mm" /></td>' : '';
+    $photoCell = $hero ? '<td class="ph" style="width:' . ($heroW + 2) . 'mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm" /></td>' : '';
     $textCell = '<td class="tx">' . htmlspecialchars($intro) . '</td>';
     $cells = $rtl ? $photoCell . $textCell : $textCell . $photoCell;
     $p1html .= '<table class="hero" width="100%" cellpadding="0" cellspacing="0"><tr>' . $cells . '</tr></table>';
@@ -196,14 +224,14 @@ $css = '
 body { font-family: ' . $font . '; color:#151515; }
 .model { font-size:25pt; font-weight:bold; color:#4a4a4a; padding:2mm 0 3mm; ' . ($rtl ? 'text-align:right;' : '') . ' }
 .hero td { vertical-align:top; }
-.hero .ph { width:84mm; }
-.hero .tx { font-size:9.5pt; line-height:1.7; padding:1mm 4mm; }
+.hero .ph { width:88mm; }
+.hero .tx { font-size:10.5pt; font-weight:bold; line-height:1.9; padding:1mm 4mm; }
 .cols td.col { width:48.5%; vertical-align:top; }
 .cols td.gap { width:3%; }
 .grp { margin-bottom:3.5mm; }
-.gh { background:#151515; color:#fff; font-weight:bold; font-size:10pt; padding:1.5mm 3mm; }
+.gh { background:#151515; color:#fff; font-weight:bold; font-size:11pt; padding:1.5mm 3mm; }
 .gh-w { background:#151515; width:9mm; }
-.rows td { font-size:8pt; padding:1.0mm 2.4mm; border-bottom:0.2mm solid #d9d9d9; }
+.rows td { font-size:10pt; padding:1.0mm 2.6mm; border-bottom:0.2mm solid #d9d9d9; }
 .rows tr.alt td { background:#e9e9e9; }
 .rows td.k { font-weight:bold; width:52%; }
 .draw { text-align:center; padding:2mm 0 4mm; }
@@ -219,10 +247,10 @@ $cfg = (new \Mpdf\Config\ConfigVariables())->getDefaults();
 $fontData = (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'];
 $mpdf = new \Mpdf\Mpdf([
     'mode' => 'utf-8', 'format' => 'A4',
-    'margin_left' => 9, 'margin_right' => 9, 'margin_top' => 27, 'margin_bottom' => 24,
+    'margin_left' => 9, 'margin_right' => 9, 'margin_top' => 30, 'margin_bottom' => 24,
     'margin_header' => 0, 'margin_footer' => 0,
     'fontDir' => array_merge($cfg['fontDir'], [__DIR__ . '/fonts']),
-    'fontdata' => $fontData + ['Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
+    'fontdata' => $fontData + ['Berlin' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'I' => 'Cairo-400.ttf', 'BI' => 'Cairo-700.ttf'], 'Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
     'default_font' => $font,
     'tempDir' => __DIR__ . '/mpdf/tmp',
 ]);
