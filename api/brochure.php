@@ -121,6 +121,29 @@ foreach ($groups as $g) {
     $p1[] = $g;
 }
 
+/* dimension-letter legend for letter-coded dimension tables (A-S) */
+$LEGEND = [
+ 'ar' => ['A'=>'الطول الكلي مع الدلو','B'=>'الطول بدون الدلو','C'=>'قاعدة العجلات','D'=>'الارتفاع الكلي','E'=>'ارتفاع الكابينة','F'=>'ارتفاع محور الدوران','G'=>'ارتفاع الدلو في أقصى وضع','H'=>'ارتفاع التفريغ','I'=>'مدى التفريغ','J'=>'زاوية إرجاع الدلو عند الرفع','K'=>'زاوية التفريغ عند أقصى ارتفاع','L'=>'عمق الحفر أسفل مستوى الأرض','M'=>'الخلوص الأرضي','N'=>'العرض الكلي','O'=>'عرض المسار','P'=>'عرض الدلو','Q'=>'عرض الدلو الداخلي','R'=>'نصف قطر الدوران الأمامي (بدون دلو)','S'=>'نصف قطر الدوران الأمامي (مع دلو)'],
+ 'en' => ['A'=>'Overall length with bucket','B'=>'Length without bucket','C'=>'Wheelbase','D'=>'Overall height','E'=>'Cab height','F'=>'Hinge-pin height','G'=>'Bucket height at maximum lift','H'=>'Dump height','I'=>'Dump reach','J'=>'Bucket rollback angle at lift','K'=>'Dump angle at max. height','L'=>'Dig depth below ground level','M'=>'Ground clearance','N'=>'Overall width','O'=>'Track width','P'=>'Bucket width','Q'=>'Bucket inner width','R'=>'Front turning radius (without bucket)','S'=>'Front turning radius (with bucket)'],
+ 'de' => ['A'=>'Gesamtlänge mit Schaufel','B'=>'Länge ohne Schaufel','C'=>'Radstand','D'=>'Gesamthöhe','E'=>'Kabinenhöhe','F'=>'Drehzapfenhöhe','G'=>'Schaufelhöhe bei max. Hub','H'=>'Auskipphöhe','I'=>'Auswurfweite','J'=>'Rückkippwinkel bei Hub','K'=>'Auskippwinkel bei max. Höhe','L'=>'Grabtiefe unter Boden','M'=>'Bodenfreiheit','N'=>'Gesamtbreite','O'=>'Spurweite','P'=>'Schaufelbreite','Q'=>'Schaufel-Innenbreite','R'=>'Vorderer Wenderadius (ohne Schaufel)','S'=>'Vorderer Wenderadius (mit Schaufel)'],
+ 'tr' => ['A'=>'Kovalı toplam uzunluk','B'=>'Kovasız uzunluk','C'=>'Dingil mesafesi','D'=>'Toplam yükseklik','E'=>'Kabin yüksekliği','F'=>'Mafsal pimi yüksekliği','G'=>'Maks. kaldırmada kova yüksekliği','H'=>'Boşaltma yüksekliği','I'=>'Boşaltma erişimi','J'=>'Kaldırmada kova geri dönüş açısı','K'=>'Maks. yükseklikte boşaltma açısı','L'=>'Zemin altı kazma derinliği','M'=>'Yerden yükseklik','N'=>'Toplam genişlik','O'=>'İz genişliği','P'=>'Kova genişliği','Q'=>'Kova iç genişliği','R'=>'Ön dönüş yarıçapı (kovasız)','S'=>'Ön dönüş yarıçapı (kovalı)'],
+];
+$COLHEADS = [
+ 'ar' => ['الرمز', 'الوصف', 'القيمة'],
+ 'en' => ['Ref.', 'Description', 'Value'],
+ 'de' => ['Pos.', 'Bezeichnung', 'Wert'],
+ 'tr' => ['Harf', 'Açıklama', 'Değer'],
+];
+function letterOf($key) {
+    return preg_match('/^(?:البعد|Dimension|Abmessung|Boyut)\s+([A-S])$/u', trim($key), $m) ? $m[1] : null;
+}
+function isLetterGroup($g) {
+    if (count($g['rows']) < 5) return false;
+    $n = 0;
+    foreach ($g['rows'] as $r) if (letterOf($r[0])) $n++;
+    return $n >= 5 && $n >= count($g['rows']) * 0.6;
+}
+
 /* ---------------- localized chrome strings ------------------------------ */
 $L = [
  'en' => ['brand' => 'SCOR Heavy Equipment & International Shipping', 'hq' => 'Head Office (Germany)',
@@ -137,6 +160,7 @@ $L = [
    'notes' => 'ملاحظات', 'legal' => ['الأبعاد والمواصفات المذكورة تقريبية وقد تختلف حسب نوع الدلو أو الإطارات المستخدمة.', 'الصور والرسومات لأغراض توضيحية فقط.', 'تحتفظ شركة SCOR بالحق في إجراء أي تعديلات على المواصفات دون إشعار مسبق.']],
 ][$lang];
 $rtl = $lang === 'ar';
+$GLOBALS['lang'] = $lang; $GLOBALS['rtl'] = $rtl;
 $font = 'Berlin';
 $logo = $ROOT . '/assets/img/companies/scor-logo-white.png';
 $stripes = $ROOT . '/assets/img/brochure/header-band.png';
@@ -145,6 +169,25 @@ $wedge = $ROOT . '/assets/img/brochure/wedge.png';
 /* ---------------- HTML builders ------------------------------------------ */
 function groupTable($g, $wedge) {
     if (!$g['rows'] && $g['title'] === '') return '';
+    if (isLetterGroup($g)) {
+        $lg = $GLOBALS['LEGEND'][$GLOBALS['lang']] ?? [];
+        $ch = $GLOBALS['COLHEADS'][$GLOBALS['lang']] ?? ['Ref.', 'Description', 'Value'];
+        $h = '<table class="grp" width="100%" cellpadding="0" cellspacing="0">';
+        if ($g['title'] !== '') {
+            $w = '<td class="gh-w"><img src="' . $wedge . '" width="9mm" /></td>';
+            $tt = '<td class="gh">' . htmlspecialchars($g['title']) . '</td>';
+            $h .= '<tr>' . ($GLOBALS['rtl'] ? $tt . $w : $w . $tt) . '</tr>';
+        }
+        $h .= '<tr><td colspan="2"><table class="rows rows3" width="100%" cellpadding="0" cellspacing="0">'
+            . '<tr class="ch"><td class="c1">' . $ch[0] . '</td><td class="c2">' . $ch[1] . '</td><td class="c3">' . $ch[2] . '</td></tr>';
+        $i = 0;
+        foreach ($g['rows'] as $r) {
+            $L = letterOf($r[0]);
+            $cls = ($i++ % 2) ? ' class="alt"' : '';
+            $h .= "<tr$cls><td class=\"c1 sym\">" . $L . '</td><td class="c2">' . htmlspecialchars($lg[$L] ?? '') . '</td><td class="c3">' . htmlspecialchars($r[1]) . '</td></tr>';
+        }
+        return $h . '</table></td></tr></table>';
+    }
     $h = '<table class="grp" width="100%" cellpadding="0" cellspacing="0">';
     if ($g['title'] !== '') {
         $w = '<td class="gh-w"><img src="' . $wedge . '" width="9mm" /></td>';
@@ -166,7 +209,7 @@ function estH($g) {
 }
 function columns($gs, $wedge) {
     if (!$gs) return '';
-    if (count($gs) === 1 && count($gs[0]['rows']) > 14) {
+    if (count($gs) === 1 && count($gs[0]['rows']) > 12) {
         $half = (int) ceil(count($gs[0]['rows']) / 2);
         $gs = [
             ['title' => $gs[0]['title'], 'rows' => array_slice($gs[0]['rows'], 0, $half)],
@@ -184,7 +227,11 @@ function columns($gs, $wedge) {
          . '<td class="col">' . $ca . '</td><td class="gap"></td><td class="col">' . $cb . '</td></tr></table>';
 }
 
-$band = '<img src="' . $stripes . '" style="width:210mm;margin-left:-9mm" />';
+$customBand = $ROOT . '/assets/img/brochure/header-custom.png';
+$bandFile = is_file($customBand) ? $customBand : $stripes;
+$band = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-9mm" />';
+$bandH = 25;
+if (is_file($bandFile)) { $sz = getimagesize($bandFile); if ($sz) $bandH = 210 * $sz[1] / $sz[0]; }
 $pin = '<span style="color:#f5b400">&#8226;</span> ';
 $foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-9mm"><tr>'
       . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">' . $L['brand'] . '<br/>SCOR Heavy Equipment &amp; International Shipping</div></td>'
@@ -198,7 +245,7 @@ $p1html = $title;
 $p1rows = 0; foreach ($p1 as $g) $p1rows += count($g['rows']);
 $heroW = $p1rows <= 26 ? 94 : ($p1rows <= 42 ? 86 : 79);
 if ($hero || $intro) {
-    $photoCell = $hero ? '<td class="ph" style="width:' . ($heroW + 2) . 'mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm" /></td>' : '';
+    $photoCell = $hero ? '<td class="ph" style="width:' . ($heroW + 2) . 'mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:56mm" /></td>' : '';
     $textCell = '<td class="tx">' . htmlspecialchars($intro) . '</td>';
     $cells = $rtl ? $photoCell . $textCell : $textCell . $photoCell;
     $p1html .= '<table class="hero" width="100%" cellpadding="0" cellspacing="0"><tr>' . $cells . '</tr></table>';
@@ -207,7 +254,7 @@ $p1html .= columns($p1, $wedge);
 
 $p2html = $title;
 if ($drawing) {
-    $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:78mm;max-width:100%" /></div>';
+    $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:64mm;max-width:100%" /></div>';
 }
 $p2html .= columns($dims, $wedge);
 $noteRows = $noteLines;
@@ -235,6 +282,11 @@ body { font-family: ' . $font . '; color:#151515; }
 .rows tr.alt td { background:#e9e9e9; }
 .rows td.k { font-weight:bold; width:52%; }
 .draw { text-align:center; padding:2mm 0 4mm; }
+.rows3 td.c1 { width:11%; text-align:center; }
+.rows3 td.c2 { width:57%; font-weight:normal; }
+.rows3 td.c3 { width:32%; font-weight:bold; }
+.rows3 td.sym { font-weight:bold; font-size:11pt; }
+.rows3 tr.ch td { background:#3a3a3a; color:#fff; font-weight:bold; font-size:9pt; }
 .nbox { background:#f2f2f2; padding:2.5mm 3mm; }
 .nline { font-size:8pt; line-height:1.6; }
 .fb { color:#f5b400; font-size:7pt; padding-top:1.2mm; }
@@ -247,7 +299,7 @@ $cfg = (new \Mpdf\Config\ConfigVariables())->getDefaults();
 $fontData = (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'];
 $mpdf = new \Mpdf\Mpdf([
     'mode' => 'utf-8', 'format' => 'A4',
-    'margin_left' => 9, 'margin_right' => 9, 'margin_top' => 30, 'margin_bottom' => 24,
+    'margin_left' => 9, 'margin_right' => 9, 'margin_top' => (int) round($bandH + 5), 'margin_bottom' => 24,
     'margin_header' => 0, 'margin_footer' => 0,
     'fontDir' => array_merge($cfg['fontDir'], [__DIR__ . '/fonts']),
     'fontdata' => $fontData + ['Berlin' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'I' => 'Cairo-400.ttf', 'BI' => 'Cairo-700.ttf'], 'Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
@@ -256,10 +308,14 @@ $mpdf = new \Mpdf\Mpdf([
 ]);
 if ($rtl) $mpdf->SetDirectionality('rtl');
 $mpdf->SetTitle($display . ' — SCOR Brochure');
+$footBand = $ROOT . '/assets/img/brochure/footer-band.png';
+$foot1 = '<img src="' . $footBand . '" style="width:210mm;margin-left:-9mm" />';
 $mpdf->SetHTMLHeader($band);
-$mpdf->SetHTMLFooter($foot);
+$mpdf->SetHTMLFooter($foot1);
 try {
-    $mpdf->WriteHTML('<style>' . $css . '</style>' . $p1html . '<pagebreak />' . $p2html);
+    $mpdf->WriteHTML('<style>' . $css . '</style>' . $p1html . '<pagebreak />');
+    $mpdf->SetHTMLFooter($foot);
+    $mpdf->WriteHTML($p2html);
 } catch (Throwable $e) {
     while (ob_get_level()) ob_end_clean();
     http_response_code(500);
