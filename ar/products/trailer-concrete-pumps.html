@@ -433,8 +433,9 @@
 <h1 style="font:inherit;margin:0;display:inline">مضخات خرسانة مقطورة</h1></div>
 </div>
 </div>
+</div>
 <div class="columns small-12 medium-8">
-<div id="products"><p class="scor-card-count">عرض 4 موديلات من مضخات خرسانة مقطورة</p><ul>
+<div id="products"><p class="scor-card-count">عرض 10 موديلات من مضخات خرسانة مقطورة</p><ul>
 
 
 
@@ -730,27 +731,51 @@
 <script src="../../assets/js/scor-lang.js"></script>
 <style data-scor-cards="manual-static">
 /* ============================================================
-   SCOR category model cards — visibility safety net.
-   Loaded LAST in <head>; also inlined at end of <body> on the 20
-   category pages so cards remain visible even if an external
-   CSS fails to load in the sandboxed file viewer or is blocked.
-   Structure: <div id="products"><ul></ul></div>
+   SCOR category pages — responsive model-card layout.
+   Single source of truth: this file, also inlined before
+   </body> on the category pages (data-scor-cards) so the layout
+   holds even where an external stylesheet cannot load.
+   Layout: the page sidebar (medium-4) sits beside the products
+   column (medium-8) on medium/large screens and stacks above it
+   on phones; model cards form an auto-fit grid — wide screens
+   get 2-3 cards per row, tablets 2, phones 1.
+   Structure: <div id="products"><p class="scor-card-count">…</p>
+   <ul><li class="product">…</li></ul></div>
    ============================================================ */
-#products{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;height:auto!important;min-height:0!important}
-#products>ul{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;list-style:none!important;margin:0!important;padding:0!important}
-#products li.product{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;float:none!important;height:auto!important;min-height:120px!important;background:#fff!important;border:1px solid #ddd!important;border-radius:10px!important;margin:0 0 20px!important;padding:18px!important;overflow:hidden!important;list-style:none!important;transform:none!important;clip-path:none!important}
-#products li.product .row{display:flex!important;flex-wrap:wrap!important;visibility:visible!important;opacity:1!important}
-#products li.product .columns{display:block!important;visibility:visible!important;opacity:1!important;float:none!important;position:static!important;min-width:0}
-#products li.product img{display:block!important;visibility:visible!important;opacity:1!important;max-width:100%!important;width:100%!important;height:auto!important;border-radius:6px}
-#products li.product .name{display:block!important;visibility:visible!important;opacity:1!important;color:#151515!important;font-size:24px!important;font-weight:700!important;line-height:1.25!important;margin-top:6px!important;text-decoration:none!important}
-#products li.product .description{display:block!important;visibility:visible!important;opacity:1!important;color:#555!important;font-size:14px!important;line-height:1.6!important;margin-top:8px!important}
-#products li.product .buttons{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;margin-top:14px!important}
-#products li.product .button{display:inline-block!important;visibility:visible!important;opacity:1!important;background:#F5B400!important;color:#151515!important;font-weight:700!important;padding:10px 18px!important;border-radius:4px!important;text-decoration:none!important}
-#products li.product .specs{display:block!important;visibility:visible!important;opacity:1!important;background:#f4f4f4!important;border-radius:6px!important;padding:10px!important;list-style:none!important;margin:0!important}
-#products li.product .spec{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #e5e5e5;padding:4px 0}
-#products li.product .specName{color:#667085}
-#products li.product .specValue{font-weight:600;color:#151515;text-align:right}
-@media(max-width:700px){#products li.product{padding:14px}#products li.product .name{font-size:21px!important}}
+#products{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;width:100%!important;height:auto!important;min-height:0!important}
+#products .scor-card-count{display:block!important;visibility:visible!important;opacity:1!important;font-size:14px!important;color:#667085!important;margin:0 0 18px!important}
+#products>ul{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr))!important;gap:22px!important;visibility:visible!important;opacity:1!important;position:static!important;list-style:none!important;margin:0!important;padding:0!important}
+#products li.product{display:flex!important;flex-direction:column!important;visibility:visible!important;opacity:1!important;position:static!important;float:none!important;width:auto!important;height:100%!important;min-height:0!important;background:#fff!important;border:1px solid #e4e4e4!important;border-radius:12px!important;margin:0!important;padding:0!important;overflow:hidden!important;list-style:none!important;transform:none!important;clip-path:none!important;box-shadow:0 1px 3px rgba(16,24,40,.07)!important;transition:box-shadow .25s ease,transform .25s ease!important}
+#products li.product:hover{box-shadow:0 10px 28px rgba(16,24,40,.14)!important;transform:translateY(-3px)!important}
+#products li.product>.row{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;flex:1!important;visibility:visible!important;opacity:1!important;margin:0!important;max-width:none!important;width:100%!important}
+#products li.product .columns{display:block!important;visibility:visible!important;opacity:1!important;float:none!important;position:static!important;width:auto!important;max-width:none!important;min-width:0!important;flex:none!important;padding:0!important;margin:0!important}
+#products li.product>.row>.columns{display:flex!important;flex-direction:column!important}
+#products li.product>.row>.columns:last-child{flex:1!important}
+#products li.product img{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;max-width:100%!important;height:210px!important;object-fit:contain!important;padding:12px!important;background:#fff!important;border:0!important;border-bottom:1px solid #f0f0f0!important;border-radius:0!important}
+#products li.product .row.info{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;flex:1!important;visibility:visible!important;opacity:1!important;padding:16px 18px 18px!important;margin:0!important;max-width:none!important}
+#products li.product .row.info>.columns{display:flex!important;flex-direction:column!important;visibility:visible!important;opacity:1!important}
+#products li.product .row.info>.columns:first-child{flex:1!important}
+#products li.product .name{display:block!important;visibility:visible!important;opacity:1!important;color:#151515!important;font-size:20px!important;font-weight:700!important;line-height:1.3!important;margin:2px 0 8px!important;text-decoration:none!important}
+#products li.product .description{display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;overflow:hidden!important;visibility:visible!important;opacity:1!important;color:#555!important;font-size:13.5px!important;line-height:1.6!important;margin:0!important}
+#products li.product .buttons{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;margin-top:auto!important;padding-top:16px!important}
+#products li.product .button{display:inline-block!important;visibility:visible!important;opacity:1!important;background:#F5B400!important;color:#151515!important;font-size:14px!important;font-weight:700!important;padding:10px 20px!important;border-radius:6px!important;text-decoration:none!important;transition:background .2s ease!important}
+#products li.product .button:hover{background:#C98F00!important;color:#fff!important}
+#products li.product .specs{display:block!important;visibility:visible!important;opacity:1!important;background:#f7f7f7!important;border-radius:8px!important;padding:10px 12px!important;list-style:none!important;margin:14px 0 0!important;max-width:none!important}
+#products li.product .spec{display:flex!important;justify-content:space-between!important;align-items:baseline!important;gap:14px!important;border-bottom:1px dashed #e2e2e2!important;padding:5px 0!important;font-size:12.5px!important;list-style:none!important}
+#products li.product .spec:last-child{border-bottom:0!important}
+#products li.product .spec>.row{display:contents!important}
+#products li.product .specName{color:#667085!important}
+#products li.product .specValue{font-weight:700!important;color:#151515!important;text-align:end!important;margin-inline-start:auto!important;flex:0 0 auto!important}
+#sideBar .image img{display:block!important;width:100%!important;height:auto!important;border-radius:12px!important}
+@media(max-width:900px){
+#products li.product img{height:190px!important}
+}
+@media(max-width:640px){
+#products>ul{gap:16px!important}
+#products li.product img{height:200px!important}
+#products li.product .name{font-size:19px!important}
+#products li.product .row.info{padding:14px 15px 16px!important}
+}
 
 </style>
 <script src="../../assets/js/scor-langbtn.js"></script><script src="/assets/js/scor-contact.js"></script></body>
