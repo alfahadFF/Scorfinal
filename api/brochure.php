@@ -230,8 +230,8 @@ function estH($g) {
         foreach ($g['rows'] as $r) $h += 1 + intdiv(mb_strlen($r[0]), $od);
         return $h;
     }
-    $kd = $GLOBALS['rtl'] ? 24 : 30;
-    $vd = $GLOBALS['rtl'] ? 30 : 38;
+    $kd = $GLOBALS['rtl'] ? 24 : (!empty($GLOBALS['onePage']) ? 19 : 30);
+    $vd = $GLOBALS['rtl'] ? 30 : (!empty($GLOBALS['onePage']) ? 26 : 38);
     foreach ($g['rows'] as $r) $h += 1 + intdiv(mb_strlen($r[0]), $kd) + intdiv(mb_strlen($r[1]), $vd);
     return $h;
 }
@@ -245,9 +245,40 @@ function columns($gs, $wedge) {
         ];
     }
     $colA = []; $colB = []; $wa = 0; $wb = 0;
-    foreach ($gs as $g) {
-        if ($wa <= $wb) { $colA[] = $g; $wa += estH($g); }
-        else { $colB[] = $g; $wb += estH($g); }
+    if (!empty($GLOBALS['onePage'])) {
+        /* sequential fill: keep group order, split the group that crosses the midpoint */
+        $total = 0;
+        foreach ($gs as $g) $total += estH($g);
+        $target = $total / 2;
+        $toB = false;
+        foreach ($gs as $g) {
+            if ($toB) { $colB[] = $g; continue; }
+            $h = estH($g);
+            if (!$colA || $wa + $h <= $target * 1.02) { $colA[] = $g; $wa += $h; continue; }
+            $split = false;
+            if (!isListGroup($g) && !isLetterGroup($g) && count($g['rows']) >= 4) {
+                $kd = $GLOBALS['rtl'] ? 24 : 19;
+                $vd = $GLOBALS['rtl'] ? 30 : 26;
+                $rem = $target - $wa; $acc = 2.4; $k = 0;
+                foreach ($g['rows'] as $r) {
+                    $rh = 1 + intdiv(mb_strlen($r[0]), $kd) + intdiv(mb_strlen($r[1]), $vd);
+                    if ($k >= 1 && $acc + $rh > $rem) break;
+                    $acc += $rh; $k++;
+                }
+                if ($k >= 1 && $k < count($g['rows'])) {
+                    $colA[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], 0, $k)];
+                    $colB[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], $k)];
+                    $split = true;
+                }
+            }
+            if (!$split) $colB[] = $g;
+            $toB = true;
+        }
+    } else {
+        foreach ($gs as $g) {
+            if ($wa <= $wb) { $colA[] = $g; $wa += estH($g); }
+            else { $colB[] = $g; $wb += estH($g); }
+        }
     }
     $ca = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $colA));
     $cb = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $colB));
@@ -325,7 +356,16 @@ if ($onePage) {
     }
     $p1 = [];
     foreach ($buckets as $i => $rows) if ($rows) $p1[] = ['title' => $FEAT_TITLES[$i], 'rows' => $rows];
-    if ($notesG) $p1[] = $notesG;
+    /* notes become a full-width strip under the tables, one note per line */
+    $notesHtml = '';
+    if ($notesG) {
+        $items = '';
+        foreach ($noteRows as $n) $items .= '<div class="nline1"><span style="color:#C98F00">&#8226;</span> ' . htmlspecialchars($n) . '</div>';
+        $w = '<td class="gh-w"><img src="' . $wedge . '" width="9mm" /></td>';
+        $tt = '<td class="gh">' . htmlspecialchars($L['notes']) . '</td>';
+        $notesHtml = '<table class="grp" width="100%" cellpadding="0" cellspacing="0" style="margin-top:1mm"><tr>' . ($rtl ? $tt . $w : $w . $tt) . '</tr>'
+                   . '<tr><td colspan="2" class="nbox1">' . $items . '</td></tr></table>';
+    }
     $drawing = '';
 }
 
@@ -379,7 +419,9 @@ foreach ([1.9, 1.65, 1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
 }
 if ($drawing && $units2 * (3.4 + 2 * $pad2) + 34 <= $avail2 - 40) $drawCap = 98;
 
+if ($onePage) { $heroW = 92; $heroCap = 76; }
 $title = '<div class="model">' . htmlspecialchars($display) . '</div>';
+$titleBig = '<div style="font-size:24pt;font-weight:bold;color:#151515;padding:1mm 0 2.5mm;border-bottom:1.1mm solid #F5B400;' . ($rtl ? 'text-align:right;' : '') . '">' . htmlspecialchars($display) . '</div><div style="height:3mm"></div>';
 
 $css = '
 body { font-family: ' . $font . '; color:#151515; }
@@ -404,6 +446,9 @@ body { font-family: ' . $font . '; color:#151515; }
 .rows3 tr.ch td { background:#3a3a3a; color:#fff; font-weight:bold; font-size:9pt; }
 .nbox { background:#f2f2f2; padding:2.5mm 3mm; }
 .nline { font-size:9pt; font-weight:bold; line-height:1.7; }
+.nline1 { font-size:9pt; line-height:1.55; padding:0.5mm 0; }
+.nbox1 { background:#f6f6f6; padding:1.8mm 3mm; }
+.hero .tx1 { background:#f6f6f6; font-weight:normal; color:#242424; line-height:1.75; padding:3mm 4.5mm; }
 .fb { color:#f5b400; font-size:7pt; padding-top:1.2mm; }
 .fc { color:#fff; font-size:7.3pt; line-height:1.55; padding:3mm 2mm; vertical-align:top; }
 .fc b { color:#f5b400; }
@@ -419,17 +464,18 @@ $smallFont = false;
 $loopMoved = 0;
 $mpdf = null;
 $phase = 'fit';
-$ok1 = $pad1; $ok2 = $pad2;
+$ok1 = $pad1; $ok2 = $pad2; $okHero = $heroCap;
 $tries = 0;
-while ($tries++ < 14) {
-    $p1html = $title;
+while ($tries++ < ($onePage ? 28 : 14)) {
+    $p1html = $onePage ? $titleBig : $title;
     if ($hero || $intro) {
         $photoCell = $hero ? '<td class="ph" style="width:' . ($heroW + 2) . 'mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:' . $heroCap . 'mm" /></td>' : '';
-        $textCell = '<td class="tx">' . htmlspecialchars($intro) . '</td>';
+        $textCell = '<td class="tx' . ($onePage ? ' tx1' : '') . '">' . htmlspecialchars($intro) . '</td>';
         $cells = $rtl ? $photoCell . $textCell : $textCell . $photoCell;
         $p1html .= '<table class="hero" width="100%" cellpadding="0" cellspacing="0"><tr>' . $cells . '</tr></table>';
     }
     $p1html .= columns($p1, $wedge);
+    if ($onePage && !empty($notesHtml)) $p1html .= $notesHtml;
     $p2html = $title;
     if ($drawing) $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:' . $drawCap . 'mm;max-width:100%" /></div>';
     $p2html .= columns($p2groups, $wedge);
@@ -449,6 +495,7 @@ while ($tries++ < 14) {
     $mpdf->SetHTMLFooter($foot1);
     $fsx = $smallFont ? '.rows td{font-size:9.4pt}' : '';
     $dens1 = '.rows td{padding:' . $pad1 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad1 - 1) * 3) . 'mm}' . $fsx;
+    if ($onePage) $dens1 .= '.rows td{line-height:1.28}.grp{margin-bottom:1.1mm}';
     $dens2 = '.rows td{padding:' . $pad2 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad2 - 1) * 3) . 'mm}' . $fsx;
     try {
         if ($onePage) {
@@ -475,12 +522,13 @@ while ($tries++ < 14) {
         if ($onePage) {
             if ($phase === 'fit') {
                 if ($pad1 > 0.62) $pad1 = max(0.62, round($pad1 - 0.13, 2));
-                elseif ($heroCap > 34) $heroCap -= 8;
-                elseif (!$smallFont) $smallFont = true;
-                else break;
+            elseif ($heroCap > 24) $heroCap -= 8;
+            elseif (!$smallFont) $smallFont = true;
+            elseif (mb_strlen($intro) > 96) { $c = preg_replace('/[^\s]*$/u', '', mb_substr($intro, 0, mb_strlen($intro) - 40)); $intro = rtrim((string) $c, " .,;:،") . '…'; }
+            else break;
                 continue;
             }
-            $pad1 = $ok1; $phase = 'done'; continue;
+            $pad1 = $ok1; $heroCap = $okHero; $phase = 'done'; continue;
         }
         if ($phase === 's1') { $pad1 = $ok1; $phase = 's2'; if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); } continue; }
         if ($phase === 's2') { $pad2 = $ok2; $phase = 'done'; continue; }
@@ -513,9 +561,18 @@ while ($tries++ < 14) {
         continue;
     }
     if ($onePage) {
-        /* rendered at exactly 1 page: stretch padding to fill it, then stop */
+        /* rendered at exactly 1 page: grow the photo first, then stretch padding */
         if ($phase === 'fit') {
-            $ok1 = $pad1; $phase = 's1';
+            $ok1 = $pad1; $okHero = $heroCap; $phase = 's0';
+            if ($heroCap < 76) { $heroCap = min(76, $heroCap + 6); continue; }
+            $phase = 's1';
+            if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+            break;
+        }
+        if ($phase === 's0') {
+            $okHero = $heroCap;
+            if ($heroCap < 76) { $heroCap = min(76, $heroCap + 6); continue; }
+            $phase = 's1';
             if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
             break;
         }

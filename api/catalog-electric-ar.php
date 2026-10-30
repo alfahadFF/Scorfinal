@@ -254,15 +254,15 @@ $css = '
 body { font-family: scorfont; color:#151515; }
 .cattitle { font-size:30pt; font-weight:bold; color:#151515; text-align:center; padding:14mm 0 2mm; }
 .catsub { font-size:14pt; font-weight:bold; color:#C98F00; text-align:center; padding-bottom:8mm; }
-.model { font-size:22pt; font-weight:bold; color:#4a4a4a; padding:1mm 0 2mm; text-align:right; }
+.model { font-size:24pt; font-weight:bold; color:#151515; padding:1mm 0 2.5mm; margin-bottom:3mm; text-align:right; border-bottom:1.1mm solid #F5B400; }
 .hero td { vertical-align:top; }
-.hero .tx { font-size:10.5pt; font-weight:bold; line-height:1.9; padding:1mm 4mm; }
+.hero .tx { font-size:10.5pt; line-height:1.85; padding:4mm 5mm; background:#f6f6f6; color:#242424; }
 .cols td.col { width:48.5%; vertical-align:top; }
 .cols td.gap { width:3%; }
 .grp { margin-bottom:3.5mm; }
 .gh { background:#151515; color:#fff; font-weight:bold; font-size:11pt; padding:1.5mm 3mm; }
 .gh-w { background:#151515; width:9mm; }
-.rows td { font-size:10pt; font-weight:bold; padding:1.15mm 2.6mm; border-bottom:0.2mm solid #d9d9d9; }
+.rows td { font-size:10pt; font-weight:bold; padding:1.05mm 2.6mm; border-bottom:0.2mm solid #d9d9d9; }
 .rows tr.alt td { background:#e9e9e9; }
 .rows td.k { font-weight:bold; width:55%; }
 .rows td.v { width:45%; }
@@ -318,7 +318,7 @@ $mpdf->WriteHTML($html);
 foreach ($models as $m) {
     $h = '<pagebreak /><div class="model">SCOR ' . htmlspecialchars($m['code']) . '</div>';
     if ($m['hero'] || $m['intro']) {
-        $photoCell = $m['hero'] ? '<td class="ph" style="width:94mm"><img src="' . $m['hero'] . '" style="width:92mm;max-height:50mm" /></td>' : '';
+        $photoCell = $m['hero'] ? '<td class="ph" style="width:102mm"><img src="' . $m['hero'] . '" style="width:100mm;max-height:66mm" /></td>' : '';
         $textCell = '<td class="tx">' . htmlspecialchars($m['intro']) . '</td>';
         $h .= '<table class="hero" width="100%" cellpadding="0" cellspacing="0"><tr>' . $photoCell . $textCell . '</tr></table>';
     }
