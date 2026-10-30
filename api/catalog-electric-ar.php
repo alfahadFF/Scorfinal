@@ -295,7 +295,7 @@ $logo = $ROOT . '/assets/img/companies/scor-logo-white.png';
 $wedge = $ROOT . '/assets/img/brochure/wedge.png';
 $pin = '<span style="color:#f5b400">&#8226;</span> ';
 $foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-5mm"><tr>'
-      . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">شركة سكور للمعدات الثقيلة والشحن الدولي<br/>SCOR Heavy Equipment &amp; International Shipping</div></td>'
+      . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">للمعدات الثقيلة والشحن الدولي<br/>SCOR Heavy Equipment &amp; International Shipping</div></td>'
       . '<td class="fc" width="23%">' . $pin . '<b>الإدارة العامة (ألمانيا)</b><br/>004915118316638<br/>004917634389434</td>'
       . '<td class="fc" width="17%">' . $pin . '<b>مكتب حمص</b><br/>00963939062887</td>'
       . '<td class="fc" width="15%">' . $pin . '<b>مكتب درعا</b><br/>00963941435541</td>'
@@ -391,7 +391,8 @@ $mpdf->WriteHTML('<pagebreak />'
     . '<span class="h">مناطق التغطية</span><br/>أوروبا — تركيا — العالم العربي — الصين'
     . '</div>'
     . '<div style="height:10mm"></div>'
-    . '<div class="nline">• الأبعاد والمواصفات المذكورة تقريبية وقد تختلف حسب نوع الدلو أو الإطارات المستخدمة.</div>'
+    . '<div class="nline">• الأبعاد والمواصفات المذكورة تقريبية وقد تختلف حسب نوع الصاري أو الإطارات أو الملحقات المستخدمة.</div>'
+    . '<div class="nline">• زمن العمل الفعلي يعتمد على ظروف التشغيل ودورة العمل وحالة البطارية والشحن.</div>'
     . '<div class="nline">• الصور والرسومات لأغراض توضيحية فقط.</div>'
     . '<div class="nline">• تحتفظ شركة SCOR بالحق في إجراء أي تعديلات على المواصفات دون إشعار مسبق.</div>');
 

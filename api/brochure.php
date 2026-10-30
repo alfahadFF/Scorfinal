@@ -174,9 +174,9 @@ $L = [
  'tr' => ['brand' => 'SCOR Ağır Ekipman ve Uluslararası Nakliye', 'hq' => 'Merkez Ofis (Almanya)',
    'homs' => 'Humus Ofisi', 'daraa' => 'Dera Ofisi', 'photo' => 'Temel özellikler',
    'notes' => 'Notlar', 'legal' => ['Belirtilen boyutlar ve özellikler yaklaşıktır; donanım veya lastiklere göre değişebilir.', 'Görseller ve çizimler yalnızca tanıtım amaçlıdır.', 'SCOR, özelliklerde önceden haber vermeksizin değişiklik yapma hakkını saklı tutar.']],
- 'ar' => ['brand' => 'شركة سكور للمعدات الثقيلة والشحن الدولي', 'hq' => 'الإدارة العامة (ألمانيا)',
+ 'ar' => ['brand' => 'للمعدات الثقيلة والشحن الدولي', 'hq' => 'الإدارة العامة (ألمانيا)',
    'homs' => 'مكتب حمص', 'daraa' => 'مكتب درعا', 'photo' => 'المواصفات الرئيسية',
-   'notes' => 'ملاحظات', 'legal' => ['الأبعاد والمواصفات المذكورة تقريبية وقد تختلف حسب نوع الدلو أو الإطارات المستخدمة.', 'الصور والرسومات لأغراض توضيحية فقط.', 'تحتفظ شركة SCOR بالحق في إجراء أي تعديلات على المواصفات دون إشعار مسبق.']],
+   'notes' => 'ملاحظات', 'legal' => ['الأبعاد والمواصفات المذكورة تقريبية وقد تختلف حسب التجهيزات أو الإطارات المستخدمة.', 'الصور والرسومات لأغراض توضيحية فقط.', 'تحتفظ شركة SCOR بالحق في إجراء أي تعديلات على المواصفات دون إشعار مسبق.']],
 ][$lang];
 $rtl = $lang === 'ar';
 $GLOBALS['lang'] = $lang; $GLOBALS['rtl'] = $rtl;
