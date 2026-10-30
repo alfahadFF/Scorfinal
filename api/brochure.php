@@ -199,29 +199,38 @@ function groupTable($g, $wedge) {
         }
         return $h . '</table></td></tr></table>';
     }
-    $h = '<table class="grp" width="100%" cellpadding="0" cellspacing="0">';
+    $oneP = !empty($GLOBALS['onePage']);
+    $bar = '';
     if ($g['title'] !== '') {
         $w = '<td class="gh-w"><img src="' . $wedge . '" width="9mm" /></td>';
         $t = '<td class="gh">' . htmlspecialchars($g['title']) . '</td>';
-        $h .= '<tr>' . ($GLOBALS['rtl'] ? $t . $w : $w . $t) . '</tr>';
+        $cells = $GLOBALS['rtl'] ? $t . $w : $w . $t;
+        $bar = $oneP
+            ? '<table class="grpbar" width="100%" cellpadding="0" cellspacing="0"><tr>' . $cells . '</tr></table>'
+            : '<tr>' . $cells . '</tr>';
     }
     if (isListGroup($g)) {
-        $h .= '<tr><td colspan="2"><table class="rows" width="100%" cellpadding="0" cellspacing="0">';
+        $rows = '<table class="rows" width="100%" cellpadding="0" cellspacing="0">';
         $i = 0;
         foreach ($g['rows'] as $r) {
             $cls = ($i++ % 2) ? ' class="alt"' : '';
-            $h .= "<tr$cls><td class=\"one\">" . htmlspecialchars($r[0]) . '</td></tr>';
+            $rows .= "<tr$cls><td class=\"one\">" . htmlspecialchars($r[0]) . '</td></tr>';
         }
-        return $h . '</table></td></tr></table>';
+        $rows .= '</table>';
+        if ($oneP) return '<div class="grp">' . $bar . $rows . '</div>';
+        return '<table class="grp" width="100%" cellpadding="0" cellspacing="0">' . $bar . '<tr><td colspan="2">' . $rows . '</td></tr></table>';
     }
-    $h .= '<tr><td colspan="2"><table class="rows" width="100%" cellpadding="0" cellspacing="0">';
+    $rows = '<table class="rows" width="100%" cellpadding="0" cellspacing="0">';
     $i = 0;
     foreach ($g['rows'] as $r) {
         $cls = ($i++ % 2) ? ' class="alt"' : '';
         $v = str_replace('\u{2713}', '<span style="font-family:dejavusans">&#10003;</span>', htmlspecialchars($r[1]));
-        $h .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . $v . '</td></tr>';
+        $rows .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . $v . '</td></tr>';
     }
-    return $h . '</table></td></tr></table>';
+    $rows .= '</table>';
+    /* one-page leaflets: bar and rows as siblings - a rows table nested in a colspan cell makes mPDF mis-size the group bar */
+    if ($oneP) return '<div class="grp">' . $bar . $rows . '</div>';
+    return '<table class="grp" width="100%" cellpadding="0" cellspacing="0">' . $bar . '<tr><td colspan="2">' . $rows . '</td></tr></table>';
 }
 function estH($g) {
     $h = 2.4;
@@ -245,8 +254,8 @@ function columns($gs, $wedge) {
         ];
     }
     $colA = []; $colB = []; $wa = 0; $wb = 0;
-    if (!empty($GLOBALS['onePage'])) {
-        /* sequential fill: keep group order, split the group that crosses the midpoint */
+    if (!empty($GLOBALS['onePage']) && !empty($GLOBALS['splitCols'])) {
+        /* sequential fill: keep group order, split the group that crosses the midpoint (last-resort fit lever only) */
         $total = 0;
         foreach ($gs as $g) $total += estH($g);
         $target = $total / 2;
@@ -320,6 +329,12 @@ $notesG = $noteRows ? ['title' => $L['notes'], 'rows' => array_map(function ($n)
    on the single page, no drawing page, and the full contact footer band
    (the one other categories get on their last page) on that only page. */
 $onePage = ($cat === 'electric-forklifts');
+if ($onePage && $hero && preg_match('/^1\./', basename($hero))) {
+    /* white-trimmed crop of the machine photo (assets .../1-crop.jpg):
+       the machine fills the frame instead of floating in white space */
+    $cropFile = dirname($hero) . '/1-crop.jpg';
+    if (is_file($cropFile)) $hero = $cropFile;
+}
 if ($onePage) {
     /* Regroup the spec rows into FEATURE tables: the EF pages store every
        row in one flat list (plus short summary blocks duplicating some of
@@ -461,9 +476,11 @@ $customFoot = $ROOT . '/assets/img/brochure/footer-custom.png';
 $footBand = is_file($customFoot) ? $customFoot : $ROOT . '/assets/img/brochure/footer-band.png';
 $foot1 = '<img src="' . $footBand . '" style="width:210mm;margin-left:-9mm" />';
 $smallFont = false;
+$tinyFont = false;
 $loopMoved = 0;
 $mpdf = null;
 $phase = 'fit';
+$splitCols = false;
 $ok1 = $pad1; $ok2 = $pad2; $okHero = $heroCap;
 $tries = 0;
 while ($tries++ < ($onePage ? 28 : 14)) {
@@ -494,6 +511,7 @@ while ($tries++ < ($onePage ? 28 : 14)) {
     $mpdf->SetHTMLHeader($band);
     $mpdf->SetHTMLFooter($foot1);
     $fsx = $smallFont ? '.rows td{font-size:9.4pt}' : '';
+    if ($tinyFont) $fsx = '.rows td{font-size:9pt;line-height:1.22}';
     $dens1 = '.rows td{padding:' . $pad1 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad1 - 1) * 3) . 'mm}' . $fsx;
     if ($onePage) $dens1 .= '.rows td{line-height:1.28}.grp{margin-bottom:1.1mm}';
     $dens2 = '.rows td{padding:' . $pad2 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad2 - 1) * 3) . 'mm}' . $fsx;
@@ -525,6 +543,8 @@ while ($tries++ < ($onePage ? 28 : 14)) {
             elseif ($heroCap > 24) $heroCap -= 8;
             elseif (!$smallFont) $smallFont = true;
             elseif (mb_strlen($intro) > 96) { $c = preg_replace('/[^\s]*$/u', '', mb_substr($intro, 0, mb_strlen($intro) - 40)); $intro = rtrim((string) $c, " .,;:،") . '…'; }
+            elseif (!$tinyFont) $tinyFont = true;
+            elseif (empty($splitCols)) $splitCols = true;
             else break;
                 continue;
             }
@@ -566,19 +586,19 @@ while ($tries++ < ($onePage ? 28 : 14)) {
             $ok1 = $pad1; $okHero = $heroCap; $phase = 's0';
             if ($heroCap < 76) { $heroCap = min(76, $heroCap + 6); continue; }
             $phase = 's1';
-            if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+            if ($pad1 < 1.55) { $pad1 = min(1.55, round($pad1 + 0.3, 2)); continue; }
             break;
         }
         if ($phase === 's0') {
             $okHero = $heroCap;
             if ($heroCap < 76) { $heroCap = min(76, $heroCap + 6); continue; }
             $phase = 's1';
-            if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+            if ($pad1 < 1.55) { $pad1 = min(1.55, round($pad1 + 0.3, 2)); continue; }
             break;
         }
         if ($phase === 's1') {
             $ok1 = $pad1;
-            if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+            if ($pad1 < 1.55) { $pad1 = min(1.55, round($pad1 + 0.3, 2)); continue; }
             break;
         }
         break;

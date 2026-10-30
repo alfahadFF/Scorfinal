@@ -127,6 +127,10 @@ function extractModel($ROOT, $lang, $cat, $model) {
         $ones = glob($ROOT . '/assets/img/scor-products/' . $model . '/1.{jpg,jpeg,png,JPG,PNG}', GLOB_BRACE) ?: [];
         if ($ones) $hero = $ones[0];
     }
+    if ($hero && preg_match('/^1\./', basename($hero))) {
+        $cropFile = dirname($hero) . '/1-crop.jpg';
+        if (is_file($cropFile)) $hero = $cropFile;
+    }
     return ['code' => $code, 'intro' => $intro, 'groups' => $groups, 'hero' => $hero];
 }
 
