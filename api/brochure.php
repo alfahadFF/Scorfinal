@@ -290,8 +290,41 @@ $notesG = $noteRows ? ['title' => $L['notes'], 'rows' => array_map(function ($n)
    (the one other categories get on their last page) on that only page. */
 $onePage = ($cat === 'electric-forklifts');
 if ($onePage) {
-    $p1 = array_merge($p1, $dims);
-    if ($anglesG) $p1[] = $anglesG;
+    /* Regroup the spec rows into FEATURE tables: the EF pages store every
+       row in one flat list (plus short summary blocks duplicating some of
+       them), but a leaflet must read by feature. Rows are deduplicated by
+       key+value and bucketed by localized key patterns; wording untouched. */
+    $FEAT_TITLES = [
+     'ar' => ['الأداء', 'الأبعاد والأوزان', 'البطارية والنظام الكهربائي', 'المحركات والهيدروليك', 'الهيكل والتوجيه والفرامل'],
+     'en' => ['Performance', 'Dimensions & Weights', 'Battery & Electrical System', 'Motors & Hydraulics', 'Chassis, Steering & Brakes'],
+     'de' => ['Leistung', 'Abmessungen & Gewichte', 'Batterie & Elektrik', 'Motoren & Hydraulik', 'Fahrwerk, Lenkung & Bremsen'],
+     'tr' => ['Performans', 'Boyutlar ve Ağırlıklar', 'Akü ve Elektrik Sistemi', 'Motorlar ve Hidrolik', 'Şasi, Direksiyon ve Frenler'],
+    ][$lang];
+    $FEAT_RE = [
+     'ar' => ['/حمولة|ارتفاع الرفع|زمن العمل|زاوية/u', '/طول|العرض|الارتفاع|قطر الدوران|وزن المركبة/u', '/بطاري|الجهد|الشحن|التحكم|الإشارة/u', '/محرك|محور الإدارة|محور الدفع|أسطوانة الرفع/u'],
+     'en' => ['/max\.?\s*load|lift height|working time|gradeab|climb|angle/i', '/length|width|height|turning radius|vehicle weight/i', '/batter|voltage|charging|controller|electricity|indicator/i', '/motor|cylinder|drive axle/i'],
+     'de' => ['/max\. last|hubhöhe|arbeitszeit|steig|winkel/i', '/länge|breite|höhe|gabellänge|wenderadius|fahrzeuggewicht/i', '/batterie|akku|spannung|ladezeit|steuerung|anzeige/i', '/motor|hubzylinder|antriebsachse/i'],
+     'tr' => ['/maks\. yük|kaldırma yüksekliği|çalışma süresi|tırmanma|eğim|açı/i', '/uzun|genişlik|yükseklik|dönüş yarıçapı|araç ağırlığı/i', '/akü|voltaj|şarj|kontrol|gösterge/i', '/motoru|silindiri|tahrik/i'],
+    ][$lang];
+    $all = []; $seen = [];
+    $collect = function ($rows) use (&$all, &$seen) {
+        foreach ($rows as $r) {
+            $sig = mb_strtolower(trim(preg_replace('/\s+/', ' ', $r[0] . '|' . $r[1])), 'UTF-8');
+            if (isset($seen[$sig])) continue;
+            $seen[$sig] = 1; $all[] = $r;
+        }
+    };
+    foreach (array_merge($p1, $dims) as $g) $collect($g['rows']);
+    $collect($angleRows);
+    $buckets = [[], [], [], [], []];
+    foreach ($all as $r) {
+        $k = mb_strtolower($r[0], 'UTF-8');
+        $bi = 4;
+        foreach ($FEAT_RE as $i => $re) { if (preg_match($re, $k)) { $bi = $i; break; } }
+        $buckets[$bi][] = $r;
+    }
+    $p1 = [];
+    foreach ($buckets as $i => $rows) if ($rows) $p1[] = ['title' => $FEAT_TITLES[$i], 'rows' => $rows];
     if ($notesG) $p1[] = $notesG;
     $drawing = '';
 }

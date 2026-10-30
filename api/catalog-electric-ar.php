@@ -210,6 +210,24 @@ foreach ($models as &$m) {
     }
 }
 unset($m);
+
+/* regroup rows into feature tables (same taxonomy as the one-page leaflet) */
+$FEAT_T = ['الأداء', 'الأبعاد والأوزان', 'البطارية والنظام الكهربائي', 'المحركات والهيدروليك', 'الهيكل والتوجيه والفرامل'];
+$FEAT_R = ['/حمولة|ارتفاع الرفع|زمن العمل|زاوية/u', '/طول|العرض|الارتفاع|قطر الدوران|وزن المركبة/u', '/بطاري|الجهد|الشحن|التحكم|الإشارة/u', '/محرك|محور الإدارة|محور الدفع|أسطوانة الرفع/u'];
+foreach ($models as &$m) {
+    $all = [];
+    foreach ($m['groups'] as $g) $all = array_merge($all, $g['rows']);
+    $b = [[], [], [], [], []];
+    foreach ($all as $r) {
+        $k = mb_strtolower($r[0], 'UTF-8');
+        $bi = 4;
+        foreach ($FEAT_R as $i => $re) { if (preg_match($re, $k)) { $bi = $i; break; } }
+        $b[$bi][] = $r;
+    }
+    $m['groups'] = [];
+    foreach ($b as $i => $rows) if ($rows) $m['groups'][] = ['title' => $FEAT_T[$i], 'rows' => $rows];
+}
+unset($m);
 function specVal($m, $keyPart) {
     foreach ($m['groups'] as $g) foreach ($g['rows'] as $r)
         if (mb_strpos($r[0], $keyPart) !== false) return $r[1];
