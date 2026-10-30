@@ -1,7 +1,8 @@
 <?php
 /* SCOR product brochure generator (one.com, mPDF).
    Builds the 2-page A4 short brochure for one model from the model's own
-   website page (single source of truth):
+   website page (single source of truth). Exception: electric-forklifts get a
+   ONE-page leaflet carrying the full contact footer on that single page:
      page 1: header band, model name, hero photo, intro, key spec groups
      page 2: engineering drawing (if the model has one), dimension groups, notes
    GET /api/brochure.php?lang=ar&cat=skid-steer-loaders&model=sy145
@@ -284,6 +285,17 @@ if (count($noteRows) < 2) foreach ($L['legal'] as $line) $noteRows[] = $line;
 $anglesG = count($angleRows) >= 2 ? ['title' => $ANGLES, 'rows' => $angleRows] : null;
 $notesG = $noteRows ? ['title' => $L['notes'], 'rows' => array_map(function ($n) { return [$n, '']; }, $noteRows)] : null;
 
+/* electric forklifts: ONE-page leaflet — every spec group (incl. dimensions)
+   on the single page, no drawing page, and the full contact footer band
+   (the one other categories get on their last page) on that only page. */
+$onePage = ($cat === 'electric-forklifts');
+if ($onePage) {
+    $p1 = array_merge($p1, $dims);
+    if ($anglesG) $p1[] = $anglesG;
+    if ($notesG) $p1[] = $notesG;
+    $drawing = '';
+}
+
 /* fill-the-page density: estimate column heights and stretch row padding */
 function colUnits($gs) {
     if (count($gs) === 1 && count($gs[0]['rows']) > 12) {
@@ -313,7 +325,7 @@ foreach ([1.9, 1.65, 1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
 }
 /* if page 1 still overflows at the tightest padding, shift trailing groups to page 2 */
 $moved = [];
-while (count($p1) > 1) {
+while (!$onePage && count($p1) > 1) {
     $est = colUnits($p1) * (3.4 + 2 * $pad1) + count($p1) * (3 + ($pad1 - 1) * 3);
     if ($est <= $avail1) break;
     $moved[] = array_pop($p1);
@@ -406,13 +418,20 @@ while ($tries++ < 14) {
     $dens1 = '.rows td{padding:' . $pad1 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad1 - 1) * 3) . 'mm}' . $fsx;
     $dens2 = '.rows td{padding:' . $pad2 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad2 - 1) * 3) . 'mm}' . $fsx;
     try {
-        $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html . '<pagebreak />');
-        $over1 = $mpdf->page > 2;
-        $over2 = false;
-        if (!$over1) {
+        if ($onePage) {
             $mpdf->SetHTMLFooter($foot);
-            $mpdf->WriteHTML('<style>' . $dens2 . '</style>' . $p2html);
-            $over2 = $mpdf->page > 2;
+            $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html);
+            $over1 = $mpdf->page > 1;
+            $over2 = false;
+        } else {
+            $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html . '<pagebreak />');
+            $over1 = $mpdf->page > 2;
+            $over2 = false;
+            if (!$over1) {
+                $mpdf->SetHTMLFooter($foot);
+                $mpdf->WriteHTML('<style>' . $dens2 . '</style>' . $p2html);
+                $over2 = $mpdf->page > 2;
+            }
         }
     } catch (Throwable $e) {
         while (ob_get_level()) ob_end_clean();
@@ -420,6 +439,16 @@ while ($tries++ < 14) {
         exit('Brochure generation failed.');
     }
     if ($over1 || $over2) {
+        if ($onePage) {
+            if ($phase === 'fit') {
+                if ($pad1 > 0.62) $pad1 = max(0.62, round($pad1 - 0.13, 2));
+                elseif ($heroCap > 34) $heroCap -= 8;
+                elseif (!$smallFont) $smallFont = true;
+                else break;
+                continue;
+            }
+            $pad1 = $ok1; $phase = 'done'; continue;
+        }
         if ($phase === 's1') { $pad1 = $ok1; $phase = 's2'; if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); } continue; }
         if ($phase === 's2') { $pad2 = $ok2; $phase = 'done'; continue; }
         if ($phase !== 'fit') break;
@@ -449,6 +478,20 @@ while ($tries++ < 14) {
             }
         }
         continue;
+    }
+    if ($onePage) {
+        /* rendered at exactly 1 page: stretch padding to fill it, then stop */
+        if ($phase === 'fit') {
+            $ok1 = $pad1; $phase = 's1';
+            if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+            break;
+        }
+        if ($phase === 's1') {
+            $ok1 = $pad1;
+            if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+            break;
+        }
+        break;
     }
     /* rendered at exactly 2 pages with the current pads */
     if ($phase === 'fit') {
