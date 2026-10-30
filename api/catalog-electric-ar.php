@@ -145,23 +145,25 @@ function isListGroup($g) {
 }
 function groupTable($g, $wedge) {
     if (!$g['rows'] && $g['title'] === '') return '';
-    $h = '<table class="grp" width="100%" cellpadding="0" cellspacing="0">';
+    $bar = '';
     if ($g['title'] !== '') {
         $w = '<td class="gh-w"><img src="' . $wedge . '" width="9mm" /></td>';
         $t = '<td class="gh">' . htmlspecialchars($g['title']) . '</td>';
-        $h .= '<tr>' . $t . $w . '</tr>';
+        $bar = '<table class="grpbar" width="100%" cellpadding="0" cellspacing="0"><tr>' . $t . $w . '</tr></table>';
     }
-    $h .= '<tr><td colspan="2"><table class="rows" width="100%" cellpadding="0" cellspacing="0">';
+    $rows = '<table class="rows" width="100%" cellpadding="0" cellspacing="0">';
     $i = 0;
     foreach ($g['rows'] as $r) {
         $cls = ($i++ % 2) ? ' class="alt"' : '';
         if (isListGroup($g)) {
-            $h .= "<tr$cls><td class=\"one\">" . htmlspecialchars($r[0]) . '</td></tr>';
+            $rows .= "<tr$cls><td class=\"one\">" . htmlspecialchars($r[0]) . '</td></tr>';
         } else {
-            $h .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . htmlspecialchars($r[1]) . '</td></tr>';
+            $rows .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . htmlspecialchars($r[1]) . '</td></tr>';
         }
     }
-    return $h . '</table></td></tr></table>';
+    $rows .= '</table>';
+    /* bar and rows as siblings (mPDF mis-sizes bars over colspan-nested rows) */
+    return '<div class="grp">' . $bar . $rows . '</div>';
 }
 function estH($g) {
     $h = 2.4;
@@ -177,11 +179,38 @@ function columns($gs, $wedge) {
             ['title' => '', 'rows' => array_slice($gs[0]['rows'], $half)],
         ];
     }
-    $colA = []; $colB = []; $wa = 0; $wb = 0;
+    /* two-column page layout: sequential fill, splitting the group that
+       crosses the midpoint so both columns balance */
+    $colA = []; $colB = []; $wa = 0;
+    $total = 0;
+    foreach ($gs as $g) $total += estH($g);
+    $target = $total / 2;
+    $toB = false;
     foreach ($gs as $g) {
-        if ($wa <= $wb) { $colA[] = $g; $wa += estH($g); }
-        else { $colB[] = $g; $wb += estH($g); }
+        if ($toB) { $colB[] = $g; continue; }
+        $h = estH($g);
+        if (!$colA || $wa + $h <= $target * 1.02) { $colA[] = $g; $wa += $h; continue; }
+        $split = false;
+        if (!isListGroup($g) && count($g['rows']) >= 4) {
+            $rem = $target - $wa; $acc = 2.4; $k = 0;
+            foreach ($g['rows'] as $r) {
+                $rh = 1 + intdiv(mb_strlen($r[0]), 24) + intdiv(mb_strlen($r[1]), 30);
+                if ($k >= 1 && $acc + $rh > $rem) break;
+                $acc += $rh; $k++;
+            }
+            if ($k >= 2 && (count($g['rows']) - $k) >= 2) {
+                $colA[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], 0, $k)];
+                $colB[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], $k)];
+                $split = true;
+            }
+        }
+        if (!$split) $colB[] = $g;
+        $toB = true;
     }
+    /* two page columns, each holding whole spec tables (nested): exactly
+       98mm per column + 4mm gap inside the 200mm content width (49%/2%).
+       Extraction normalises NBSP-joined values (norm), so text wraps
+       freely and the percentage widths are honoured. */
     $ca = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $colA));
     $cb = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $colB));
     return '<table class="cols" width="100%" cellpadding="0" cellspacing="0"><tr>'
@@ -241,13 +270,31 @@ function specVal($m, $keyPart) {
 /* ---------------- chrome ------------------------------------------------- */
 $bandFile = $ROOT . '/assets/img/brochure/header-custom.png';
 if (!is_file($bandFile)) $bandFile = $ROOT . '/assets/img/brochure/header-band.png';
-$band = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-9mm" />';
+$band = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-5mm" />';
 $bandH = 25;
 if (is_file($bandFile)) { $sz = getimagesize($bandFile); if ($sz) $bandH = 210 * $sz[1] / $sz[0]; }
+/* page title at the SAME level as the header logo + short description under
+   it, printed over the band image and kept inside its bounds */
+function bandHeader($bandFile, $bandH, $title, $desc) {
+    /* title + description centred horizontally in the band's white area and
+       dropped a few mm so they never hug the top edge */
+    $h = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-5mm" />'
+       . '<div style="margin-top:-' . round($bandH - 10, 1) . 'mm;margin-left:88mm;width:116mm;text-align:center">'
+       . '<div style="font-size:19pt;font-weight:bold;color:#151515;line-height:1.25">' . htmlspecialchars($title) . '</div>';
+    if ($desc !== '') $h .= '<div style="font-size:8.5pt;line-height:1.5;color:#242424;padding-top:1.6mm">' . htmlspecialchars($desc) . '</div>';
+    return $h . '</div>';
+}
+function headIntro($intro) {
+    if (mb_strlen($intro) > 175) {
+        $intro = rtrim(mb_substr($intro, 0, 175));
+        $intro = preg_replace('/\s+\S*$/', '', $intro) . '…';
+    }
+    return $intro;
+}
 $logo = $ROOT . '/assets/img/companies/scor-logo-white.png';
 $wedge = $ROOT . '/assets/img/brochure/wedge.png';
 $pin = '<span style="color:#f5b400">&#8226;</span> ';
-$foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-9mm"><tr>'
+$foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-5mm"><tr>'
       . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">شركة سكور للمعدات الثقيلة والشحن الدولي<br/>SCOR Heavy Equipment &amp; International Shipping</div></td>'
       . '<td class="fc" width="23%">' . $pin . '<b>الإدارة العامة (ألمانيا)</b><br/>004915118316638<br/>004917634389434</td>'
       . '<td class="fc" width="17%">' . $pin . '<b>مكتب حمص</b><br/>00963939062887</td>'
@@ -261,8 +308,8 @@ body { font-family: scorfont; color:#151515; }
 .model { font-size:24pt; font-weight:bold; color:#151515; padding:1mm 0 2.5mm; margin-bottom:3mm; text-align:right; border-bottom:1.1mm solid #F5B400; }
 .hero td { vertical-align:top; }
 .hero .tx { font-size:10.5pt; line-height:1.85; padding:4mm 5mm; background:#f6f6f6; color:#242424; }
-.cols td.col { width:48.5%; vertical-align:top; }
-.cols td.gap { width:3%; }
+.cols td.col { width:49%; vertical-align:top; }
+.cols td.gap { width:2%; }
 .grp { margin-bottom:3.5mm; }
 .gh { background:#151515; color:#fff; font-weight:bold; font-size:11pt; padding:1.5mm 3mm; }
 .gh-w { background:#151515; width:9mm; }
@@ -287,7 +334,7 @@ $cfg = (new \Mpdf\Config\ConfigVariables())->getDefaults();
 $fontData = (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'];
 $mpdf = new \Mpdf\Mpdf([
     'mode' => 'utf-8', 'format' => 'A4',
-    'margin_left' => 9, 'margin_right' => 9, 'margin_top' => (int) round($bandH + 3), 'margin_bottom' => 24,
+    'margin_left' => 5, 'margin_right' => 5, 'margin_top' => (int) round($bandH + 3), 'margin_bottom' => 24,
     'margin_header' => 0, 'margin_footer' => 0,
     'fontDir' => array_merge($cfg['fontDir'], [__DIR__ . '/fonts']),
     'fontdata' => $fontData + ['scorfont' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'I' => 'Cairo-400.ttf', 'BI' => 'Cairo-700.ttf', 'useOTL' => 0xFF], 'Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
@@ -320,19 +367,19 @@ $mpdf->WriteHTML($html);
 
 /* ---------------- one page per model -------------------------------------- */
 foreach ($models as $m) {
-    $h = '<pagebreak /><div class="model">SCOR ' . htmlspecialchars($m['code']) . '</div>';
-    if ($m['hero'] || $m['intro']) {
-        $photoCell = $m['hero'] ? '<td class="ph" style="width:102mm"><img src="' . $m['hero'] . '" style="width:100mm;max-height:66mm" /></td>' : '';
-        $textCell = '<td class="tx">' . htmlspecialchars($m['intro']) . '</td>';
-        $h .= '<table class="hero" width="100%" cellpadding="0" cellspacing="0"><tr>' . $photoCell . $textCell . '</tr></table>';
+    /* model name + short description ride inside the header band */
+    $mpdf->SetHTMLHeader(bandHeader($bandFile, $bandH, 'SCOR ' . $m['code'], headIntro($m['intro'])));
+    $h = '<pagebreak />';
+    if ($m['hero']) {
+        $h .= '<div style="text-align:center;padding:0 0 3mm"><img src="' . $m['hero'] . '" style="width:150mm;max-height:66mm" /></div>';
     }
     $h .= columns($m['groups'], $wedge);
     $mpdf->WriteHTML($h);
 }
 
 /* ---------------- closing contact page ------------------------------------ */
+$mpdf->SetHTMLHeader(bandHeader($bandFile, $bandH, 'تواصل معنا', ''));
 $mpdf->WriteHTML('<pagebreak />'
-    . '<div class="model">تواصل معنا</div>'
     . '<div class="contact">'
     . '<span class="h">الإدارة العامة — ألمانيا</span><br/>'
     . 'SCOR Heavy Machinery Manufacturing<br/>'

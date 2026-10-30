@@ -37,7 +37,10 @@ $xp = new DOMXPath($dom);
 
 function xtext($xp, $query, $ctx = null) {
     $n = $ctx ? $xp->query($query, $ctx) : $xp->query($query);
-    return ($n && $n->length) ? trim(preg_replace('/\s+/', ' ', $n->item(0)->textContent)) : '';
+    /* NBSP (U+00A0) -> normal space: source pages join words with &nbsp;,
+       which mPDF then treats as one unbreakable block (measured 77mm) and
+       that poisons every column-width calculation downstream */
+    return ($n && $n->length) ? trim(preg_replace('/[\s\x{00A0}]+/u', ' ', $n->item(0)->textContent)) : '';
 }
 $h1 = xtext($xp, '//h1');
 $code = preg_replace('/^SCOR\s+/i', '', $h1);
@@ -48,6 +51,12 @@ $intro = xtext($xp, '(//div[contains(concat(" ",normalize-space(@class)," ")," d
 if (mb_strlen($intro) > 300) {
     $intro = rtrim(mb_substr($intro, 0, 300));
     $intro = preg_replace('/\s+\S*$/', '', $intro) . '…';
+}
+/* header-band short description: must stay inside the band (<= ~3 lines) */
+$headIntro = $intro;
+if (mb_strlen($headIntro) > 175) {
+    $headIntro = rtrim(mb_substr($headIntro, 0, 175));
+    $headIntro = preg_replace('/\s+\S*$/', '', $headIntro) . '…';
 }
 
 /* spec groups: header li (empty value) starts a group */
@@ -199,7 +208,7 @@ function groupTable($g, $wedge) {
         }
         return $h . '</table></td></tr></table>';
     }
-    $oneP = !empty($GLOBALS['onePage']);
+    $oneP = true; /* bar+rows as siblings everywhere (mPDF nested-table fix) */
     $bar = '';
     if ($g['title'] !== '') {
         $w = '<td class="gh-w"><img src="' . $wedge . '" width="9mm" /></td>';
@@ -254,8 +263,9 @@ function columns($gs, $wedge) {
         ];
     }
     $colA = []; $colB = []; $wa = 0; $wb = 0;
-    if (!empty($GLOBALS['onePage']) && !empty($GLOBALS['splitCols'])) {
-        /* sequential fill: keep group order, split the group that crosses the midpoint (last-resort fit lever only) */
+    if (!empty($GLOBALS['splitCols'])) {
+        /* sequential fill: keep group order, split the group that crosses the
+           midpoint — page-layout two columns, balanced by rows if needed */
         $total = 0;
         foreach ($gs as $g) $total += estH($g);
         $target = $total / 2;
@@ -274,7 +284,7 @@ function columns($gs, $wedge) {
                     if ($k >= 1 && $acc + $rh > $rem) break;
                     $acc += $rh; $k++;
                 }
-                if ($k >= 1 && $k < count($g['rows'])) {
+                if ($k >= 2 && (count($g['rows']) - $k) >= 2) {
                     $colA[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], 0, $k)];
                     $colB[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], $k)];
                     $split = true;
@@ -289,6 +299,11 @@ function columns($gs, $wedge) {
             else { $colB[] = $g; $wb += estH($g); }
         }
     }
+    /* two page columns, each holding whole spec tables (nested): exactly
+       98mm per column + 4mm gap inside the 200mm content width. mPDF sizes
+       such columns by content unless the text can wrap freely -- with
+       NBSP-joined source values normalised at extraction (xtext), the
+       49%/2% cell widths are honoured and the columns come out equal. */
     $ca = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $colA));
     $cb = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $colB));
     return '<table class="cols" width="100%" cellpadding="0" cellspacing="0"><tr>'
@@ -297,11 +312,19 @@ function columns($gs, $wedge) {
 
 $customBand = $ROOT . '/assets/img/brochure/header-custom.png';
 $bandFile = is_file($customBand) ? $customBand : $stripes;
-$band = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-9mm" />';
 $bandH = 25;
 if (is_file($bandFile)) { $sz = getimagesize($bandFile); if ($sz) $bandH = 210 * $sz[1] / $sz[0]; }
+/* model name at the SAME level as the header logo, short description right
+   under it — both printed over the band image and kept inside its bounds.
+   The title + description block is centred horizontally in the band's white
+   area and dropped a few mm so it never hugs the top edge. */
+$band = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-5mm" />'
+      . '<div style="margin-top:-' . round($bandH - 10, 1) . 'mm;margin-left:88mm;width:116mm;text-align:center">'
+      . '<div style="font-size:19pt;font-weight:bold;color:#151515;line-height:1.25">' . htmlspecialchars($display) . '</div>'
+      . ($headIntro !== '' ? '<div style="font-size:8.5pt;line-height:1.5;color:#242424;padding-top:1.6mm">' . htmlspecialchars($headIntro) . '</div>' : '')
+      . '</div>';
 $pin = '<span style="color:#f5b400">&#8226;</span> ';
-$foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-9mm"><tr>'
+$foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-5mm"><tr>'
       . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">' . $L['brand'] . '<br/>SCOR Heavy Equipment &amp; International Shipping</div></td>'
       . '<td class="fc" width="23%">' . $pin . '<b>' . $L['hq'] . '</b><br/>004915118316638<br/>004917634389434</td>'
       . '<td class="fc" width="17%">' . $pin . '<b>' . $L['homs'] . '</b><br/>00963939062887</td>'
@@ -397,54 +420,45 @@ function colUnits($gs) {
     foreach ($gs as $g) { if ($wa <= $wb) $wa += estH($g); else $wb += estH($g); }
     return max($wa, $wb);
 }
-$heroCap = 50;
+$heroCap = 100;
 $BODYH = 297 - (int) round($bandH + 3) - 24;
-$p1rows = 0; foreach ($p1 as $g) $p1rows += count($g['rows']);
-$heroW = $p1rows <= 26 ? 92 : ($p1rows <= 42 ? 84 : 78);
+$heroW = 150;
 $heroImgH = 0;
 if ($hero) { $hs = getimagesize($hero); if ($hs) $heroImgH = min($heroCap, $heroW * $hs[1] / $hs[0]); }
-if ($hero) $topH = max($heroImgH, $intro ? 4 + 7 * (1 + intdiv(mb_strlen($intro), $rtl ? 52 : 68)) : 0) + 3;
-else $topH = $intro ? 5 + 7 * (1 + intdiv(mb_strlen($intro), $rtl ? 95 : 115)) : 0;
-$avail1 = $BODYH - 14 - $topH;
+$topH = $hero ? $heroImgH + 4 : 0;
+$avail1 = $BODYH - 10 - $topH;
 $units1 = colUnits($p1);
 $pad1 = 0.8;
-foreach ([1.9, 1.65, 1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
+foreach ([1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
     if ($units1 * (3.4 + 2 * $cand) <= $avail1 * 0.94) { $pad1 = $cand; break; }
 }
-/* if page 1 still overflows at the tightest padding, shift trailing groups to page 2 */
+/* page-1 -> page-2 group moves happen in the render loop, on real overflow */
 $moved = [];
-while (!$onePage && count($p1) > 1) {
-    $est = colUnits($p1) * (3.4 + 2 * $pad1) + count($p1) * (3 + ($pad1 - 1) * 3);
-    if ($est <= $avail1) break;
-    $moved[] = array_pop($p1);
-    $units1 = colUnits($p1); $pad1 = 0.8;
-    foreach ([1.9, 1.65, 1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
-        if ($units1 * (3.4 + 2 * $cand) <= $avail1 * 0.94) { $pad1 = $cand; break; }
-    }
+if ($onePage) {
+    $p2groups = array_reverse($moved);
+} else {
+    $p2groups = array_merge($dims, array_reverse($moved), $anglesG ? [$anglesG] : [], $notesG ? [$notesG] : []);
 }
-$p2groups = array_merge($dims, array_reverse($moved), $anglesG ? [$anglesG] : [], $notesG ? [$notesG] : []);
 $drawCap = 84; $drawH = 0;
 if ($drawing) { $ds = getimagesize($drawing); if ($ds) $drawH = min($drawCap, 190 * $ds[1] / $ds[0]) + 4; }
 $notesH = $noteLines || true ? 0 : 0;
 $avail2 = $BODYH - 15 - $drawH;
 $units2 = colUnits($p2groups);
 $pad2 = 0.8;
-foreach ([1.9, 1.65, 1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
+foreach ([1.4, 1.2, 1.05, 0.9, 0.8] as $cand) {
     if ($units2 * (3.4 + 2 * $cand) + 34 <= $avail2 * 0.94) { $pad2 = $cand; break; }
 }
 if ($drawing && $units2 * (3.4 + 2 * $pad2) + 34 <= $avail2 - 40) $drawCap = 98;
 
-if ($onePage) { $heroW = 92; $heroCap = 76; }
-$title = '<div class="model">' . htmlspecialchars($display) . '</div>';
-$titleBig = '<div style="font-size:24pt;font-weight:bold;color:#151515;padding:1mm 0 2.5mm;border-bottom:1.1mm solid #F5B400;' . ($rtl ? 'text-align:right;' : '') . '">' . htmlspecialchars($display) . '</div><div style="height:3mm"></div>';
+/* model name + short description live in the header band (see $band) */
 
 $css = '
 body { font-family: ' . $font . '; color:#151515; }
 .model { font-size:22pt; font-weight:bold; color:#4a4a4a; padding:1mm 0 2mm; ' . ($rtl ? 'text-align:right;' : '') . ' }
 .hero td { vertical-align:top; }
 .hero .tx { font-size:10.5pt; font-weight:bold; line-height:1.9; padding:1mm 4mm; }
-.cols td.col { width:48.5%; vertical-align:top; }
-.cols td.gap { width:3%; }
+.cols td.col { width:49%; vertical-align:top; }
+.cols td.gap { width:2%; }
 .grp { margin-bottom:3.5mm; }
 .gh { background:#151515; color:#fff; font-weight:bold; font-size:11pt; padding:1.5mm 3mm; }
 .gh-w { background:#151515; width:9mm; }
@@ -474,32 +488,29 @@ $cfg = (new \Mpdf\Config\ConfigVariables())->getDefaults();
 $fontData = (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'];
 $customFoot = $ROOT . '/assets/img/brochure/footer-custom.png';
 $footBand = is_file($customFoot) ? $customFoot : $ROOT . '/assets/img/brochure/footer-band.png';
-$foot1 = '<img src="' . $footBand . '" style="width:210mm;margin-left:-9mm" />';
+$foot1 = '<img src="' . $footBand . '" style="width:210mm;margin-left:-5mm" />';
 $smallFont = false;
 $tinyFont = false;
 $loopMoved = 0;
 $mpdf = null;
 $phase = 'fit';
-$splitCols = false;
+$splitCols = true; /* two-column page layout with row-level balancing from the start */
 $ok1 = $pad1; $ok2 = $pad2; $okHero = $heroCap;
 $tries = 0;
-while ($tries++ < ($onePage ? 28 : 14)) {
-    $p1html = $onePage ? $titleBig : $title;
-    if ($hero || $intro) {
-        $photoCell = $hero ? '<td class="ph" style="width:' . ($heroW + 2) . 'mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:' . $heroCap . 'mm" /></td>' : '';
-        $textCell = '<td class="tx' . ($onePage ? ' tx1' : '') . '">' . htmlspecialchars($intro) . '</td>';
-        $cells = $rtl ? $photoCell . $textCell : $textCell . $photoCell;
-        $p1html .= '<table class="hero" width="100%" cellpadding="0" cellspacing="0"><tr>' . $cells . '</tr></table>';
-    }
+while ($tries++ < 48) {
+    $hasP2 = $drawing !== '' || count($p2groups) > 0;
+    $p1html = '';
+    if ($hero) $p1html .= '<div style="text-align:center;padding:0 0 3mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:' . $heroCap . 'mm" /></div>';
     $p1html .= columns($p1, $wedge);
-    if ($onePage && !empty($notesHtml)) $p1html .= $notesHtml;
-    $p2html = $title;
+    if ($onePage && !$hasP2 && !empty($notesHtml)) $p1html .= $notesHtml;
+    $p2html = '';
     if ($drawing) $p2html .= '<div class="draw"><img src="' . $drawing . '" style="max-height:' . $drawCap . 'mm;max-width:100%" /></div>';
     $p2html .= columns($p2groups, $wedge);
+    if ($onePage && $hasP2 && !empty($notesHtml)) $p2html .= $notesHtml;
 
     $mpdf = new \Mpdf\Mpdf([
         'mode' => 'utf-8', 'format' => 'A4',
-        'margin_left' => 9, 'margin_right' => 9, 'margin_top' => (int) round($bandH + 3), 'margin_bottom' => 24,
+        'margin_left' => 5, 'margin_right' => 5, 'margin_top' => (int) round($bandH + 3), 'margin_bottom' => 24,
         'margin_header' => 0, 'margin_footer' => 0,
         'fontDir' => array_merge($cfg['fontDir'], [__DIR__ . '/fonts']),
         'fontdata' => $fontData + ['scorfont' => ['R' => 'Cairo-400.ttf', 'B' => 'Cairo-700.ttf', 'I' => 'Cairo-400.ttf', 'BI' => 'Cairo-700.ttf', 'useOTL' => 0xFF], 'Tajawal' => ['R' => 'Tajawal-400.ttf', 'B' => 'Tajawal-700.ttf', 'I' => 'Tajawal-500.ttf', 'BI' => 'Tajawal-800.ttf']],
@@ -509,22 +520,16 @@ while ($tries++ < ($onePage ? 28 : 14)) {
     if ($rtl) $mpdf->SetDirectionality('rtl');
     $mpdf->SetTitle($display . ' — SCOR Brochure');
     $mpdf->SetHTMLHeader($band);
-    $mpdf->SetHTMLFooter($foot1);
+    $mpdf->SetHTMLFooter($hasP2 ? $foot1 : $foot);
     $fsx = $smallFont ? '.rows td{font-size:9.4pt}' : '';
     if ($tinyFont) $fsx = '.rows td{font-size:9pt;line-height:1.22}';
     $dens1 = '.rows td{padding:' . $pad1 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad1 - 1) * 3) . 'mm}' . $fsx;
-    if ($onePage) $dens1 .= '.rows td{line-height:1.28}.grp{margin-bottom:1.1mm}';
     $dens2 = '.rows td{padding:' . $pad2 . 'mm 2.6mm}.grp{margin-bottom:' . (3 + ($pad2 - 1) * 3) . 'mm}' . $fsx;
     try {
-        if ($onePage) {
-            $mpdf->SetHTMLFooter($foot);
-            $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html);
-            $over1 = $mpdf->page > 1;
-            $over2 = false;
-        } else {
-            $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html . '<pagebreak />');
-            $over1 = $mpdf->page > 2;
-            $over2 = false;
+        $mpdf->WriteHTML('<style>' . $css . $dens1 . '</style>' . $p1html . ($hasP2 ? '<pagebreak />' : ''));
+        if (!$hasP2) { $over1 = $mpdf->page > 1; $over2 = false; }
+        else {
+            $over1 = $mpdf->page > 2; $over2 = false;
             if (!$over1) {
                 $mpdf->SetHTMLFooter($foot);
                 $mpdf->WriteHTML('<style>' . $dens2 . '</style>' . $p2html);
@@ -537,85 +542,105 @@ while ($tries++ < ($onePage ? 28 : 14)) {
         exit('Brochure generation failed.');
     }
     if ($over1 || $over2) {
-        if ($onePage) {
-            if ($phase === 'fit') {
-                if ($pad1 > 0.62) $pad1 = max(0.62, round($pad1 - 0.13, 2));
-            elseif ($heroCap > 24) $heroCap -= 8;
-            elseif (!$smallFont) $smallFont = true;
-            elseif (mb_strlen($intro) > 96) { $c = preg_replace('/[^\s]*$/u', '', mb_substr($intro, 0, mb_strlen($intro) - 40)); $intro = rtrim((string) $c, " .,;:،") . '…'; }
-            elseif (!$tinyFont) $tinyFont = true;
-            elseif (empty($splitCols)) $splitCols = true;
-            else break;
+        if ($phase === 'pd') {
+            /* push-down overshot page 2: take the group back to page 1 */
+            $idx = $onePage ? 0 : count($dims);
+            $g = $p2groups[$idx]; array_splice($p2groups, $idx, 1);
+            $p1[] = $g;
+            if (!$onePage) $loopMoved--;
+            $noPD = true; $phase = 'fit'; continue;
+        }
+        if ($phase === 'pb') {
+            /* pull-back overshot: put the group back on page 2 and stop pulling */
+            $g = array_pop($p1);
+            array_splice($p2groups, $onePage ? 0 : count($dims), 0, [$g]);
+            if (!$onePage) $loopMoved++;
+            $noPB = true; $phase = 'fit'; continue;
+        }
+        if ($phase === 'fit') {
+            if ($over1) {
+                if (count($p1) > 1) {
+                    $g = array_pop($p1);
+                    array_splice($p2groups, ($onePage ? 0 : count($dims)) + $loopMoved, 0, [$g]);
+                    $loopMoved++;
+                } elseif ($pad1 > 0.62) $pad1 = max(0.62, round($pad1 - 0.13, 2));
+                elseif ($heroCap > 30) $heroCap -= 8;
+                elseif (!$smallFont) $smallFont = true;
+                elseif (!$tinyFont) $tinyFont = true;
+                elseif (empty($splitCols)) $splitCols = true;
+                else break;
+            } else {
+                if ($drawing && $drawCap > 36) $drawCap -= 14;
+                elseif ($pad2 > 0.62) $pad2 = max(0.62, round($pad2 - 0.13, 2));
+                else {
+                    $big = -1; $bigH = 0;
+                    foreach ($p2groups as $gi => $g) {
+                        if (count($g['rows']) > 6 && estH($g) > $bigH) { $bigH = estH($g); $big = $gi; }
+                    }
+                    if ($big >= 0) {
+                        $half = (int) ceil(count($p2groups[$big]['rows']) / 2);
+                        $second = ['title' => $p2groups[$big]['title'], 'rows' => array_slice($p2groups[$big]['rows'], $half)];
+                        $p2groups[$big]['rows'] = array_slice($p2groups[$big]['rows'], 0, $half);
+                        array_splice($p2groups, $big + 1, 0, [$second]);
+                    } elseif (!$smallFont) $smallFont = true;
+                    elseif (!$tinyFont) $tinyFont = true;
+                    else break;
+                }
+            }
+            continue;
+        }
+        /* stretch overshot: restore the best-known settings and finish */
+        $pad1 = $ok1; $pad2 = $ok2; $heroCap = $okHero; $phase = 'done'; continue;
+    }
+    /* success: one page (no page-2 content) or exactly two pages */
+    if ($phase === 'pb') { $phase = 'fit'; continue; }
+    if ($phase === 'pd') { $noPD = true; $noPB = true; $phase = 'fit'; continue; }
+    if ($phase === 'fit') {
+        /* rebalance: pull page-2 groups back onto page 1 while they fit, so
+           neither page is left mostly empty */
+        if (empty($noPB)) {
+            $mvAvail = $onePage ? count($p2groups) : $loopMoved;
+            if ($mvAvail > 0) {
+                $mvIdx = $onePage ? 0 : count($dims);
+                $g = array_splice($p2groups, $mvIdx, 1)[0];
+                $p1[] = $g;
+                if (!$onePage) $loopMoved--;
+                $phase = 'pb';
                 continue;
             }
-            $pad1 = $ok1; $heroCap = $okHero; $phase = 'done'; continue;
+            $noPB = true;
         }
-        if ($phase === 's1') { $pad1 = $ok1; $phase = 's2'; if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); } continue; }
-        if ($phase === 's2') { $pad2 = $ok2; $phase = 'done'; continue; }
-        if ($phase !== 'fit') break;
-        if ($over1) {
-            if (count($p1) > 1) {
+        /* if page 2 is still mostly empty, push page 1's last group down so
+           both pages carry a fair share */
+        if (empty($noPD) && $hasP2 && count($p1) > 1) {
+            $estP2 = colUnits($p2groups) * (3.4 + 2 * $pad2) + (isset($drawH) ? $drawH : 0);
+            if ($estP2 < $avail2 * 0.5) {
                 $g = array_pop($p1);
-                array_splice($p2groups, count($dims) + $loopMoved, 0, [$g]);
-                $loopMoved++;
-            } elseif ($pad1 > 0.62) $pad1 = max(0.62, round($pad1 - 0.13, 2));
-            elseif ($heroCap > 34) $heroCap -= 8;
-            else break;
-        } else {
-            if ($drawing && $drawCap > 36) $drawCap -= 14;
-            elseif ($pad2 > 0.62) $pad2 = max(0.62, round($pad2 - 0.13, 2));
-            else {
-                $big = -1; $bigH = 0;
-                foreach ($p2groups as $gi => $g) {
-                    if (count($g['rows']) > 6 && estH($g) > $bigH) { $bigH = estH($g); $big = $gi; }
-                }
-                if ($big >= 0) {
-                    $half = (int) ceil(count($p2groups[$big]['rows']) / 2);
-                    $second = ['title' => '', 'rows' => array_slice($p2groups[$big]['rows'], $half)];
-                    $p2groups[$big]['rows'] = array_slice($p2groups[$big]['rows'], 0, $half);
-                    array_splice($p2groups, $big + 1, 0, [$second]);
-                } elseif (!$smallFont) $smallFont = true;
-                else break;
+                array_splice($p2groups, $onePage ? 0 : count($dims), 0, [$g]);
+                if (!$onePage) $loopMoved++;
+                $phase = 'pd';
+                continue;
             }
+            $noPD = true;
         }
-        continue;
-    }
-    if ($onePage) {
-        /* rendered at exactly 1 page: grow the photo first, then stretch padding */
-        if ($phase === 'fit') {
-            $ok1 = $pad1; $okHero = $heroCap; $phase = 's0';
-            if ($heroCap < 76) { $heroCap = min(76, $heroCap + 6); continue; }
-            $phase = 's1';
-            if ($pad1 < 1.55) { $pad1 = min(1.55, round($pad1 + 0.3, 2)); continue; }
-            break;
-        }
-        if ($phase === 's0') {
-            $okHero = $heroCap;
-            if ($heroCap < 76) { $heroCap = min(76, $heroCap + 6); continue; }
-            $phase = 's1';
-            if ($pad1 < 1.55) { $pad1 = min(1.55, round($pad1 + 0.3, 2)); continue; }
-            break;
-        }
-        if ($phase === 's1') {
-            $ok1 = $pad1;
-            if ($pad1 < 1.55) { $pad1 = min(1.55, round($pad1 + 0.3, 2)); continue; }
-            break;
-        }
+        $ok1 = $pad1; $ok2 = $pad2; $okHero = $heroCap; $phase = 's0';
+        if ($heroCap < 100) { $heroCap = min(100, $heroCap + 6); continue; }
+        $phase = 's1';
+        if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+        if ($hasP2 && $pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
         break;
     }
-    /* rendered at exactly 2 pages with the current pads */
-    if ($phase === 'fit') {
-        $ok1 = $pad1; $ok2 = $pad2; $phase = 's1';
+    if ($phase === 's0') {
+        $okHero = $heroCap;
+        if ($heroCap < 100) { $heroCap = min(100, $heroCap + 6); continue; }
+        $phase = 's1';
         if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
-        $phase = 's2';
-        if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); continue; }
         break;
     }
     if ($phase === 's1') {
         $ok1 = $pad1;
         if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
-        $phase = 's2';
-        if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); continue; }
+        if ($hasP2 && $pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
         break;
     }
     if ($phase === 's2') {
