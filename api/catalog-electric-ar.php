@@ -82,6 +82,29 @@ function xtext($xp, $query, $ctx = null) {
     $n = $ctx ? $xp->query($query, $ctx) : $xp->query($query);
     return ($n && $n->length) ? norm($n->item(0)->textContent) : '';
 }
+/* Preserve the visual order of short LTR values from Arabic pages without
+   printing the pages' directional marks as missing-glyph boxes in mPDF. */
+function hvalue($value) {
+    $parts = explode("\u{200E}", (string)$value);
+    $out = '';
+    foreach ($parts as $i => $part) {
+        $part = htmlspecialchars($part);
+        if ($i % 2) {
+            $out .= '<span dir="ltr">' . $part . '</span>';
+        } else {
+            /* Older Arabic pages contain translated sentences with tire codes
+               like 400-8. Their unmarked hyphens reverse in RTL mPDF text;
+               protect each code while preserving its exact source numbers. */
+            $part = preg_replace_callback(
+                '/(?<![\\p{L}\\p{N}.])\\d+(?:\\.\\d+)?(?:[-*–]\\d+(?:\\.\\d+)?)+(?![\\p{L}\\p{N}.])/u',
+                static function ($m) { return '<span dir="ltr">' . $m[0] . '</span>'; },
+                $part
+            );
+            $out .= $part;
+        }
+    }
+    return $out;
+}
 function extractModel($ROOT, $lang, $cat, $model) {
     $pageFile = "$ROOT/$lang/products/$cat/$model.html";
     if (!is_file($pageFile)) return null;
@@ -158,7 +181,7 @@ function groupTable($g, $wedge) {
         if (isListGroup($g)) {
             $rows .= "<tr$cls><td class=\"one\">" . htmlspecialchars($r[0]) . '</td></tr>';
         } else {
-            $rows .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . htmlspecialchars($r[1]) . '</td></tr>';
+            $rows .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . hvalue($r[1]) . '</td></tr>';
         }
     }
     $rows .= '</table>';
@@ -170,8 +193,40 @@ function estH($g) {
     foreach ($g['rows'] as $r) $h += 1 + intdiv(mb_strlen($r[0]), 24) + intdiv(mb_strlen($r[1]), 30);
     return $h;
 }
-function columns($gs, $wedge) {
+function columns($gs, $wedge, $balanceLongGroups = false) {
     if (!$gs) return '';
+    /* EF40 carries longer supplier descriptions; choose the best sequential
+       column break, splitting a group only with >=2 rows in each segment. */
+    if ($balanceLongGroups) {
+        $best = null; $bestDiff = INF;
+        $consider = function ($a, $b) use (&$best, &$bestDiff) {
+            if (!$a || !$b) return;
+            $ha = 0; $hb = 0;
+            foreach ($a as $g) $ha += estH($g);
+            foreach ($b as $g) $hb += estH($g);
+            $diff = abs($ha - $hb);
+            if ($diff < $bestDiff) { $bestDiff = $diff; $best = [$a, $b]; }
+        };
+        foreach ($gs as $i => $g) {
+            if ($i > 0) $consider(array_slice($gs, 0, $i), array_slice($gs, $i));
+            $n = count($g['rows']);
+            if (!isListGroup($g) && $n >= 4) {
+                for ($k = 2; $k <= $n - 2; $k++) {
+                    $a = array_slice($gs, 0, $i);
+                    $a[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], 0, $k)];
+                    $b = [['title' => $g['title'], 'rows' => array_slice($g['rows'], $k)]];
+                    $b = array_merge($b, array_slice($gs, $i + 1));
+                    $consider($a, $b);
+                }
+            }
+        }
+        if ($best !== null) {
+            $ca = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $best[0]));
+            $cb = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $best[1]));
+            return '<table class="cols" width="100%" cellpadding="0" cellspacing="0"><tr>'
+                 . '<td class="col">' . $ca . '</td><td class="gap"></td><td class="col">' . $cb . '</td></tr></table>';
+        }
+    }
     if (count($gs) === 1 && count($gs[0]['rows']) > 12) {
         $half = (int) ceil(count($gs[0]['rows']) / 2);
         $gs = [
@@ -246,7 +301,7 @@ unset($m);
 
 /* regroup rows into feature tables (same taxonomy as the one-page leaflet) */
 $FEAT_T = ['الأداء', 'الأبعاد والأوزان', 'البطارية والنظام الكهربائي', 'المحركات والهيدروليك', 'الهيكل والتوجيه والفرامل'];
-$FEAT_R = ['/حمولة|ارتفاع الرفع|زمن العمل|زاوية/u', '/طول|العرض|الارتفاع|قطر الدوران|وزن المركبة/u', '/بطاري|الجهد|الشحن|التحكم|الإشارة/u', '/محرك|محور الإدارة|محور الدفع|أسطوانة الرفع/u'];
+$FEAT_R = ['/حمولة|ارتفاع الرفع|زمن العمل|زاوية|ميل السارية|سرعة|الصعود/u', '/طول|العرض|الارتفاع|قطر الدوران|وزن|الوزن|خلوص|مسار|مداس|قاعدة العجلات/u', '/بطاري|الجهد|جهد|الشحن|التحكم|الإشارة/u', '/محرك|محور الإدارة|محور الدفع|أسطوانة الرفع/u'];
 foreach ($models as &$m) {
     $all = [];
     foreach ($m['groups'] as $g) $all = array_merge($all, $g['rows']);
@@ -348,6 +403,13 @@ $mpdf->SetHTMLFooter($foot);
 
 /* ---------------- cover + overview --------------------------------------- */
 $topModel = end($models);
+/* The newest model can be awaiting its own image. Keep the category cover's
+   existing highest-model photograph without mislabelling it as EF40. */
+if (empty($topModel['hero'])) {
+    foreach (array_reverse($models, true) as $coverCandidate) {
+        if (!empty($coverCandidate['hero'])) { $topModel = $coverCandidate; break; }
+    }
+}
 $html = '<style>' . $css . '</style>'
       . '<div class="cattitle">الرافعات الشوكية الكهربائية</div>'
       . '<div class="catsub">كتالوج المواصفات الفنية الشامل — SCOR</div>';
@@ -358,8 +420,15 @@ $html .= '<table class="ov"><tr><th>الموديل</th><th>أقصى حمولة</
 $i = 0;
 foreach ($models as $m) {
     $cls = ($i++ % 2) ? ' class="alt"' : '';
-    $html .= "<tr$cls><td>SCOR " . htmlspecialchars($m['code']) . '</td><td>' . htmlspecialchars(specVal($m, 'أقصى حمولة')) . '</td><td>'
-           . htmlspecialchars(specVal($m, 'ارتفاع الرفع')) . '</td><td>' . htmlspecialchars(specVal($m, 'بطاري')) . '</td><td>'
+    /* New supplier sheets specify rated load; older pages use max. load. */
+    $load = specVal($m, 'الحمولة الاسمية');
+    if ($load === '—') $load = specVal($m, 'أقصى حمولة');
+    $batterySummary = specVal($m, 'بطاري');
+    /* Keep the overview short; EF40's complete sourced battery detail is on
+       its own page, including the source's unchanged battery figure. */
+    if ($m['slug'] === 'ef40') $batterySummary = preg_replace('/؛.*/u', '', $batterySummary);
+    $html .= "<tr$cls><td>SCOR " . htmlspecialchars($m['code']) . '</td><td>' . htmlspecialchars($load) . '</td><td>'
+           . htmlspecialchars(specVal($m, 'ارتفاع الرفع')) . '</td><td>' . htmlspecialchars($batterySummary) . '</td><td>'
            . htmlspecialchars(specVal($m, 'زمن العمل')) . '</td></tr>';
 }
 $html .= '</table>';
@@ -372,8 +441,11 @@ foreach ($models as $m) {
     $h = '<pagebreak />';
     if ($m['hero']) {
         $h .= '<div style="text-align:center;padding:0 0 3mm"><img src="' . $m['hero'] . '" style="width:150mm;max-height:66mm" /></div>';
+    } elseif ($m['slug'] === 'ef40') {
+        /* The user will supply EF40's photograph later; use no substitute. */
+        $h .= '<div style="margin:0 25mm 4mm;padding:12mm 3mm;text-align:center;background:#FFFFFF;border:0.3mm solid #667085;color:#667085;font-size:11pt">صورة الموديل ستُضاف لاحقاً</div>';
     }
-    $h .= columns($m['groups'], $wedge);
+    $h .= columns($m['groups'], $wedge, $m['slug'] === 'ef40');
     $mpdf->WriteHTML($h);
 }
 
@@ -394,7 +466,8 @@ $mpdf->WriteHTML('<pagebreak />'
     . '<div class="nline">• الأبعاد والمواصفات المذكورة تقريبية وقد تختلف حسب نوع الصاري أو الإطارات أو الملحقات المستخدمة.</div>'
     . '<div class="nline">• زمن العمل الفعلي يعتمد على ظروف التشغيل ودورة العمل وحالة البطارية والشحن.</div>'
     . '<div class="nline">• الصور والرسومات لأغراض توضيحية فقط.</div>'
-    . '<div class="nline">• تحتفظ شركة SCOR بالحق في إجراء أي تعديلات على المواصفات دون إشعار مسبق.</div>');
+    . '<div class="nline">• تحتفظ شركة SCOR بالحق في إجراء أي تعديلات على المواصفات دون إشعار مسبق.</div>'
+    . '<div class="nline">• يرجى تأكيد التجهيزات والمواصفات النهائية قبل تقديم الطلب.</div>');
 
 while (ob_get_level()) ob_end_clean();
 $mpdf->Output('SCOR_Electric_Forklifts_Catalog_AR.pdf', 'D');

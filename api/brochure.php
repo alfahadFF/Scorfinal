@@ -42,6 +42,18 @@ function xtext($xp, $query, $ctx = null) {
        that poisons every column-width calculation downstream */
     return ($n && $n->length) ? trim(preg_replace('/[\s\x{00A0}]+/u', ' ', $n->item(0)->textContent)) : '';
 }
+/* Web pages use paired LRM markers to keep short mixed-direction numbers
+   (e.g. 6°–12° and 12#) in source order. mPDF prints those markers as boxes,
+   so replace each marked segment with an explicit LTR span instead. */
+function hvalue($value) {
+    $parts = explode("\u{200E}", (string)$value);
+    $out = '';
+    foreach ($parts as $i => $part) {
+        $part = htmlspecialchars($part);
+        $out .= ($i % 2) ? '<span dir="ltr">' . $part . '</span>' : $part;
+    }
+    return $out;
+}
 $h1 = xtext($xp, '//h1');
 $code = preg_replace('/^SCOR\s+/i', '', $h1);
 $code = trim($code) !== '' ? trim($code) : strtoupper($model);
@@ -203,7 +215,7 @@ function groupTable($g, $wedge) {
         foreach ($g['rows'] as $r) {
             $L = letterOf($r[0]);
             $cls = ($i++ % 2) ? ' class="alt"' : '';
-            $v3 = str_replace('\u{2713}', '<span style="font-family:dejavusans">&#10003;</span>', htmlspecialchars($r[1]));
+            $v3 = str_replace('\u{2713}', '<span style="font-family:dejavusans">&#10003;</span>', hvalue($r[1]));
             $h .= "<tr$cls><td class=\"c1 sym\">" . $L . '</td><td class="c2">' . htmlspecialchars($lg[$L] ?? '') . '</td><td class="c3">' . $v3 . '</td></tr>';
         }
         return $h . '</table></td></tr></table>';
@@ -233,7 +245,7 @@ function groupTable($g, $wedge) {
     $i = 0;
     foreach ($g['rows'] as $r) {
         $cls = ($i++ % 2) ? ' class="alt"' : '';
-        $v = str_replace('\u{2713}', '<span style="font-family:dejavusans">&#10003;</span>', htmlspecialchars($r[1]));
+        $v = str_replace('\u{2713}', '<span style="font-family:dejavusans">&#10003;</span>', hvalue($r[1]));
         $rows .= "<tr$cls><td class=\"k\">" . htmlspecialchars($r[0]) . '</td><td class="v">' . $v . '</td></tr>';
     }
     $rows .= '</table>';
@@ -255,6 +267,39 @@ function estH($g) {
 }
 function columns($gs, $wedge) {
     if (!$gs) return '';
+    /* For EF40's longer supplied descriptions, select the most balanced
+       sequential column break, including row-level splits with >=2 rows on
+       either side. No text, sizes or existing-model layouts are altered. */
+    if (($GLOBALS['model'] ?? '') === 'ef40' && !empty($GLOBALS['onePage'])) {
+        $best = null; $bestDiff = INF; $count = count($gs);
+        $consider = function ($a, $b) use (&$best, &$bestDiff) {
+            if (!$a || !$b) return;
+            $ha = 0; $hb = 0;
+            foreach ($a as $g) $ha += estH($g);
+            foreach ($b as $g) $hb += estH($g);
+            $diff = abs($ha - $hb);
+            if ($diff < $bestDiff) { $bestDiff = $diff; $best = [$a, $b]; }
+        };
+        foreach ($gs as $i => $g) {
+            if ($i > 0) $consider(array_slice($gs, 0, $i), array_slice($gs, $i));
+            $n = count($g['rows']);
+            if (!isListGroup($g) && !isLetterGroup($g) && $n >= 4) {
+                for ($k = 2; $k <= $n - 2; $k++) {
+                    $a = array_slice($gs, 0, $i);
+                    $a[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], 0, $k)];
+                    $b = [['title' => $g['title'], 'rows' => array_slice($g['rows'], $k)]];
+                    $b = array_merge($b, array_slice($gs, $i + 1));
+                    $consider($a, $b);
+                }
+            }
+        }
+        if ($best !== null) {
+            $ca = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $best[0]));
+            $cb = implode('', array_map(function ($g) use ($wedge) { return groupTable($g, $wedge); }, $best[1]));
+            return '<table class="cols" width="100%" cellpadding="0" cellspacing="0"><tr>'
+                 . '<td class="col">' . $ca . '</td><td class="gap"></td><td class="col">' . $cb . '</td></tr></table>';
+        }
+    }
     if (count($gs) === 1 && count($gs[0]['rows']) > 12) {
         $half = (int) ceil(count($gs[0]['rows']) / 2);
         $gs = [
@@ -273,7 +318,11 @@ function columns($gs, $wedge) {
         foreach ($gs as $g) {
             if ($toB) { $colB[] = $g; continue; }
             $h = estH($g);
-            if (!$colA || $wa + $h <= $target * 1.02) { $colA[] = $g; $wa += $h; continue; }
+            /* EF30's translated groups may be almost perfectly balanced at
+               3–5% over the estimate; accept that rather than leaving an
+               entire column under-filled. Other model layouts stay unchanged. */
+            $tolerance = (!empty($GLOBALS['onePage']) && ($GLOBALS['model'] ?? '') === 'ef30') ? 1.05 : 1.02;
+            if (!$colA || $wa + $h <= $target * $tolerance) { $colA[] = $g; $wa += $h; continue; }
             $split = false;
             if (!isListGroup($g) && !isLetterGroup($g) && count($g['rows']) >= 4) {
                 $kd = $GLOBALS['rtl'] ? 24 : 19;
@@ -345,6 +394,14 @@ foreach ($p1 as $gi => $g) {
 $p1 = array_values(array_filter($p1, function ($g) { return $g['rows']; }));
 $noteRows = $noteLines;
 if (count($noteRows) < 2) foreach ($L['legal'] as $line) $noteRows[] = $line;
+if ($cat === 'electric-forklifts' && $model === 'ef15') {
+    $noteRows[] = [
+        'ar' => 'يرجى تأكيد التجهيزات والمواصفات النهائية قبل تقديم الطلب.',
+        'en' => 'Please confirm final equipment and specifications before ordering.',
+        'de' => 'Bitte Ausstattung und endgültige Daten vor der Bestellung bestätigen.',
+        'tr' => 'Lütfen siparişten önce nihai donanım ve özellikleri doğrulayın.',
+    ][$lang];
+}
 $anglesG = count($angleRows) >= 2 ? ['title' => $ANGLES, 'rows' => $angleRows] : null;
 $notesG = $noteRows ? ['title' => $L['notes'], 'rows' => array_map(function ($n) { return [$n, '']; }, $noteRows)] : null;
 
@@ -352,6 +409,17 @@ $notesG = $noteRows ? ['title' => $L['notes'], 'rows' => array_map(function ($n)
    on the single page, no drawing page, and the full contact footer band
    (the one other categories get on their last page) on that only page. */
 $onePage = ($cat === 'electric-forklifts');
+/* EF40 is requested now; the owner will supply its photograph later. Never
+   borrow another model's photograph. The placeholder disappears once the
+   proper EF40 hero is installed. */
+$photoPending = $onePage && $model === 'ef40' && !$hero;
+$photoPendingText = [
+    'ar' => 'صورة الموديل ستُضاف لاحقاً', 'en' => 'Model photo coming soon',
+    'de' => 'Modellfoto folgt', 'tr' => 'Model fotoğrafı yakında',
+][$lang];
+/* These updated supplier sheets have more rows; allow an extra balancing
+   move while keeping two feature groups beside the first-page photograph. */
+$rebalanceUpdatedEF = $onePage && in_array($model, ['ef15', 'ef20', 'ef25', 'ef30', 'ef35', 'ef40'], true);
 if ($onePage && $hero && preg_match('/^1\./', basename($hero))) {
     /* white-trimmed crop of the machine photo (assets .../1-crop.jpg):
        the machine fills the frame instead of floating in white space */
@@ -370,10 +438,10 @@ if ($onePage) {
      'tr' => ['Performans', 'Boyutlar ve Ağırlıklar', 'Akü ve Elektrik Sistemi', 'Motorlar ve Hidrolik', 'Şasi, Direksiyon ve Frenler'],
     ][$lang];
     $FEAT_RE = [
-     'ar' => ['/حمولة|ارتفاع الرفع|زمن العمل|زاوية/u', '/طول|العرض|الارتفاع|قطر الدوران|وزن المركبة/u', '/بطاري|الجهد|الشحن|التحكم|الإشارة/u', '/محرك|محور الإدارة|محور الدفع|أسطوانة الرفع/u'],
-     'en' => ['/max\.?\s*load|lift height|working time|gradeab|climb|angle/i', '/length|width|height|turning radius|vehicle weight/i', '/batter|voltage|charging|controller|electricity|indicator/i', '/motor|cylinder|drive axle/i'],
-     'de' => ['/max\. last|hubhöhe|arbeitszeit|steig|winkel/i', '/länge|breite|höhe|gabellänge|wenderadius|fahrzeuggewicht/i', '/batterie|akku|spannung|ladezeit|steuerung|anzeige/i', '/motor|hubzylinder|antriebsachse/i'],
-     'tr' => ['/maks\. yük|kaldırma yüksekliği|çalışma süresi|tırmanma|eğim|açı/i', '/uzun|genişlik|yükseklik|dönüş yarıçapı|araç ağırlığı/i', '/akü|voltaj|şarj|kontrol|gösterge/i', '/motoru|silindiri|tahrik/i'],
+     'ar' => ['/حمولة|ارتفاع الرفع|زمن العمل|زاوية|ميل السارية|سرعة|الصعود/u', '/طول|العرض|الارتفاع|قطر الدوران|وزن|الوزن|خلوص|مسار|مداس|قاعدة العجلات/u', '/بطاري|الجهد|جهد|الشحن|التحكم|الإشارة/u', '/محرك|محور الإدارة|محور الدفع|أسطوانة الرفع/u'],
+     'en' => ['/rated load|max\.?\s*load|lift height|working time|gradeab|climb|angle|mast tilt|speed/i', '/length|width|height|turning radius|(?:vehicle|operating|service) weight|ground clearance|wheel track|wheel tread|wheelbase/i', '/batter|voltage|charging|controller|electricity|indicator/i', '/motor|cylinder|drive axle/i'],
+     'de' => ['/nenntragfähigkeit|max\. last|hubhöhe|arbeitszeit|steig|winkel|geschwindigkeit|mastneigung/i', '/länge|breite|höhe|gabellänge|wenderadius|(?:fahrzeug|betriebs|dienst)gewicht|bodenfreiheit|spurweite|radstand/i', '/batterie|akku|spannung|ladezeit|steuerung|anzeige/i', '/motor|hubzylinder|antriebsachse/i'],
+     'tr' => ['/nominal yük|maks\. yük|kaldırma yüksekliği|çalışma süresi|tırmanma|eğim|açı|hız/i', '/uzun|genişlik|yükseklik|dönüş yarıçapı|ağırlığı|yerden yükseklik|iz genişliği|dingil mesafesi/i', '/akü|voltaj|şarj|kontrol|gösterge/i', '/motoru|silindiri|tahrik/i'],
     ][$lang];
     $all = []; $seen = [];
     $collect = function ($rows) use (&$all, &$seen) {
@@ -409,7 +477,19 @@ if ($onePage) {
 
 /* fill-the-page density: estimate column heights and stretch row padding */
 function colUnits($gs) {
-    if (count($gs) === 1 && count($gs[0]['rows']) > 12) {
+    if (($GLOBALS['model'] ?? '') === 'ef40' && !empty($GLOBALS['onePage']) && count($gs) === 1 && count($gs[0]['rows']) >= 4) {
+        $g = $gs[0]; $n = count($g['rows']); $bestK = 2; $bestDiff = INF;
+        for ($k = 2; $k <= $n - 2; $k++) {
+            $a = ['title' => $g['title'], 'rows' => array_slice($g['rows'], 0, $k)];
+            $b = ['title' => $g['title'], 'rows' => array_slice($g['rows'], $k)];
+            $diff = abs(estH($a) - estH($b));
+            if ($diff < $bestDiff) { $bestDiff = $diff; $bestK = $k; }
+        }
+        $gs = [
+            ['title' => $g['title'], 'rows' => array_slice($g['rows'], 0, $bestK)],
+            ['title' => $g['title'], 'rows' => array_slice($g['rows'], $bestK)],
+        ];
+    } elseif (count($gs) === 1 && count($gs[0]['rows']) > 12) {
         $half = (int) ceil(count($gs[0]['rows']) / 2);
         $gs = [
             ['title' => $gs[0]['title'], 'rows' => array_slice($gs[0]['rows'], 0, $half)],
@@ -425,7 +505,7 @@ $BODYH = 297 - (int) round($bandH + 3) - 24;
 $heroW = 150;
 $heroImgH = 0;
 if ($hero) { $hs = getimagesize($hero); if ($hs) $heroImgH = min($heroCap, $heroW * $hs[1] / $hs[0]); }
-$topH = $hero ? $heroImgH + 4 : 0;
+$topH = $hero ? $heroImgH + 4 : ($photoPending ? 42 : 0);
 $avail1 = $BODYH - 10 - $topH;
 $units1 = colUnits($p1);
 $pad1 = 0.8;
@@ -499,8 +579,12 @@ $ok1 = $pad1; $ok2 = $pad2; $okHero = $heroCap;
 $tries = 0;
 while ($tries++ < 48) {
     $hasP2 = $drawing !== '' || count($p2groups) > 0;
+    /* While EF40 awaits its photo, its two-page language versions can use
+       more breathing room between rows rather than leave sparse lower pages. */
+    $maxPad = ($photoPending && $hasP2) ? 3.4 : 1.9;
     $p1html = '';
     if ($hero) $p1html .= '<div style="text-align:center;padding:0 0 3mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:' . $heroCap . 'mm" /></div>';
+    elseif ($photoPending) $p1html .= '<div style="margin:0 25mm 4mm;padding:12mm 3mm;text-align:center;background:#FFFFFF;border:0.3mm solid #667085;color:#667085;font-size:11pt">' . htmlspecialchars($photoPendingText) . '</div>';
     $p1html .= columns($p1, $wedge);
     if ($onePage && !$hasP2 && !empty($notesHtml)) $p1html .= $notesHtml;
     $p2html = '';
@@ -559,7 +643,11 @@ while ($tries++ < 48) {
         }
         if ($phase === 'fit') {
             if ($over1) {
-                if (count($p1) > 1) {
+                /* Before moving whole EF30 groups to a sparse second page,
+                   try slightly tighter row padding, without shrinking the
+                   10pt text or the 150mm hero photo. */
+                if ($onePage && $model === 'ef30' && !$p2groups && $pad1 > 0.50) { $pad1 = 0.50; }
+                elseif (count($p1) > 1) {
                     $g = array_pop($p1);
                     array_splice($p2groups, ($onePage ? 0 : count($dims)) + $loopMoved, 0, [$g]);
                     $loopMoved++;
@@ -594,7 +682,7 @@ while ($tries++ < 48) {
     }
     /* success: one page (no page-2 content) or exactly two pages */
     if ($phase === 'pb') { $phase = 'fit'; continue; }
-    if ($phase === 'pd') { $noPD = true; $noPB = true; $phase = 'fit'; continue; }
+    if ($phase === 'pd') { $noPD = !$rebalanceUpdatedEF; $noPB = true; $phase = 'fit'; continue; }
     if ($phase === 'fit') {
         /* rebalance: pull page-2 groups back onto page 1 while they fit, so
            neither page is left mostly empty */
@@ -612,9 +700,12 @@ while ($tries++ < 48) {
         }
         /* if page 2 is still mostly empty, push page 1's last group down so
            both pages carry a fair share */
-        if (empty($noPD) && $hasP2 && count($p1) > 1) {
+        /* EF40's pending-photo draft has long sourced descriptions: retain
+           at least three groups on page 1 to avoid two sparse pages. */
+        $minP1Groups = ($onePage && $model === 'ef40') ? 3 : ($rebalanceUpdatedEF ? 2 : 1);
+        if (empty($noPD) && $hasP2 && count($p1) > $minP1Groups) {
             $estP2 = colUnits($p2groups) * (3.4 + 2 * $pad2) + (isset($drawH) ? $drawH : 0);
-            if ($estP2 < $avail2 * 0.5) {
+            if ($estP2 < $avail2 * ($rebalanceUpdatedEF ? 0.72 : 0.5)) {
                 $g = array_pop($p1);
                 array_splice($p2groups, $onePage ? 0 : count($dims), 0, [$g]);
                 if (!$onePage) $loopMoved++;
@@ -626,26 +717,26 @@ while ($tries++ < 48) {
         $ok1 = $pad1; $ok2 = $pad2; $okHero = $heroCap; $phase = 's0';
         if ($heroCap < 100) { $heroCap = min(100, $heroCap + 6); continue; }
         $phase = 's1';
-        if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
-        if ($hasP2 && $pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
+        if ($pad1 < $maxPad) { $pad1 = min($maxPad, round($pad1 + 0.3, 2)); continue; }
+        if ($hasP2 && $pad2 < $maxPad) { $pad2 = min($maxPad, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
         break;
     }
     if ($phase === 's0') {
         $okHero = $heroCap;
         if ($heroCap < 100) { $heroCap = min(100, $heroCap + 6); continue; }
         $phase = 's1';
-        if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
+        if ($pad1 < $maxPad) { $pad1 = min($maxPad, round($pad1 + 0.3, 2)); continue; }
         break;
     }
     if ($phase === 's1') {
         $ok1 = $pad1;
-        if ($pad1 < 1.9) { $pad1 = min(1.9, round($pad1 + 0.3, 2)); continue; }
-        if ($hasP2 && $pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
+        if ($pad1 < $maxPad) { $pad1 = min($maxPad, round($pad1 + 0.3, 2)); continue; }
+        if ($hasP2 && $pad2 < $maxPad) { $pad2 = min($maxPad, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
         break;
     }
     if ($phase === 's2') {
         $ok2 = $pad2;
-        if ($pad2 < 1.9) { $pad2 = min(1.9, round($pad2 + 0.3, 2)); continue; }
+        if ($pad2 < $maxPad) { $pad2 = min($maxPad, round($pad2 + 0.3, 2)); continue; }
         break;
     }
     break;
