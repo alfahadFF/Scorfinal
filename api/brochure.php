@@ -332,7 +332,10 @@ function columns($gs, $wedge) {
             $tolerance = (!empty($GLOBALS['onePage']) && ($GLOBALS['model'] ?? '') === 'ef30') ? 1.05 : 1.02;
             if (!$colA || $wa + $h <= $target * $tolerance) { $colA[] = $g; $wa += $h; continue; }
             $split = false;
-            if (!isListGroup($g) && !isLetterGroup($g) && count($g['rows']) >= 4) {
+            $msAccessories = (($GLOBALS['cat'] ?? '') === 'mortar-spraying-machines'
+                && in_array($g['title'], ['الملحقات والتغليف', 'Accessories & Packaging', 'Zubehör und Verpackung', 'Aksesuarlar ve Ambalaj'], true));
+            /* Keep the included MS accessory list together in one column. */
+            if (!isListGroup($g) && !isLetterGroup($g) && !$msAccessories && count($g['rows']) >= 4) {
                 $kd = $GLOBALS['rtl'] ? 24 : 19;
                 $vd = $GLOBALS['rtl'] ? 30 : 26;
                 $rem = $target - $wa; $acc = 2.4; $k = 0;
@@ -382,10 +385,10 @@ $band = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-5mm" />'
       . '</div>';
 $pin = '<span style="color:#f5b400">&#8226;</span> ';
 $footBrand = '<img src="' . $logo . '" height="10mm" /><div class="fb">' . $L['brand'] . '<br/>SCOR Heavy Equipment &amp; International Shipping</div>';
-if ($cat === 'electric-forklifts' || ($cat === 'trailer-concrete-pumps' && in_array($model, ['pump-pm-30', 'pump-pm-50'], true))) {
+if ($cat === 'electric-forklifts' || $cat === 'mortar-spraying-machines' || ($cat === 'trailer-concrete-pumps' && in_array($model, ['pump-pm-30', 'pump-pm-50'], true))) {
     /* Keep the localized tagline on its own line below the logo. The legacy
        inline image split the first Arabic letter onto the logo line. */
-    $footerTagline = $cat === 'electric-forklifts' ? [
+    $footerTagline = in_array($cat, ['electric-forklifts', 'mortar-spraying-machines'], true) ? [
         'ar' => 'للمعدات الثقيلة والشحن الدولي',
         'en' => 'Heavy Equipment & International Shipping',
         'de' => 'Baumaschinen & internationaler Versand',
@@ -414,7 +417,8 @@ foreach ($p1 as $gi => $g) {
 }
 $p1 = array_values(array_filter($p1, function ($g) { return $g['rows']; }));
 $noteRows = $noteLines;
-if (count($noteRows) < 2) foreach ($L['legal'] as $line) $noteRows[] = $line;
+/* The MS source does not contain dimensions, tires or approximation notes. */
+if ($cat !== 'mortar-spraying-machines' && count($noteRows) < 2) foreach ($L['legal'] as $line) $noteRows[] = $line;
 if ($cat === 'electric-forklifts' && $model === 'ef15') {
     $noteRows[] = [
         'ar' => 'يرجى تأكيد التجهيزات والمواصفات النهائية قبل تقديم الطلب.',
@@ -643,7 +647,7 @@ while ($tries++ < 48) {
     $hasP2 = $drawing !== '' || count($p2groups) > 0;
     /* While EF40 awaits its photo, its two-page language versions can use
        more breathing room between rows rather than leave sparse lower pages. */
-    $maxPad = ($photoPending && $hasP2) ? 3.4 : 1.9;
+    $maxPad = ($cat === 'mortar-spraying-machines') ? 2.8 : (($photoPending && $hasP2) ? 3.4 : 1.9);
     /* The revised forklift sheets and PM30/50 can use more of page two
        without affecting the first-page photograph or the 10pt table text. */
     $maxPad2 = (($cat === 'trailer-concrete-pumps' && $model === 'pump-pm-50')
