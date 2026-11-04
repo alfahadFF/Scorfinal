@@ -267,10 +267,11 @@ function estH($g) {
 }
 function columns($gs, $wedge) {
     if (!$gs) return '';
-    /* For EF40 and the expanded PM30/PM50 sheets, select the most balanced
-       sequential column break, including row-level splits with >=2 rows on
-       either side. Other models' layouts are unchanged. */
+    /* For EF40, Turkish EF30, and the expanded PM30/PM50 sheets, select the
+       most balanced sequential column break, including row-level splits with
+       >=2 rows on either side. Other models' layouts are unchanged. */
     if ((($GLOBALS['model'] ?? '') === 'ef40' && !empty($GLOBALS['onePage']))
+        || (($GLOBALS['model'] ?? '') === 'ef30' && ($GLOBALS['lang'] ?? '') === 'tr' && !empty($GLOBALS['onePage']))
         || (($GLOBALS['cat'] ?? '') === 'trailer-concrete-pumps' && in_array(($GLOBALS['model'] ?? ''), ['pump-pm-30', 'pump-pm-50'], true))) {
         $best = null; $bestDiff = INF; $count = count($gs);
         $consider = function ($a, $b) use (&$best, &$bestDiff) {
@@ -381,11 +382,17 @@ $band = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-5mm" />'
       . '</div>';
 $pin = '<span style="color:#f5b400">&#8226;</span> ';
 $footBrand = '<img src="' . $logo . '" height="10mm" /><div class="fb">' . $L['brand'] . '<br/>SCOR Heavy Equipment &amp; International Shipping</div>';
-if ($cat === 'trailer-concrete-pumps' && in_array($model, ['pump-pm-30', 'pump-pm-50'], true)) {
-    /* Keep the exact localized tagline on its own line below the logo. The
-       legacy inline image split the first Arabic letter onto the logo line. */
+if ($cat === 'electric-forklifts' || ($cat === 'trailer-concrete-pumps' && in_array($model, ['pump-pm-30', 'pump-pm-50'], true))) {
+    /* Keep the localized tagline on its own line below the logo. The legacy
+       inline image split the first Arabic letter onto the logo line. */
+    $footerTagline = $cat === 'electric-forklifts' ? [
+        'ar' => 'للمعدات الثقيلة والشحن الدولي',
+        'en' => 'Heavy Equipment & International Shipping',
+        'de' => 'Baumaschinen & internationaler Versand',
+        'tr' => 'Ağır Ekipman ve Uluslararası Nakliye',
+    ][$lang] : $L['brand'];
     $footBrand = '<img src="' . $logo . '" height="10mm" /><br/><div class="fb"'
-        . ($rtl ? ' dir="rtl" style="text-align:left"' : '') . '>' . htmlspecialchars($L['brand']) . '</div>';
+        . ($rtl ? ' dir="rtl" style="text-align:left"' : '') . '>' . htmlspecialchars($footerTagline) . '</div>';
 }
 $foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-5mm"><tr>'
       . '<td width="31%" style="padding:3mm 5mm">' . $footBrand . '</td>'
@@ -637,10 +644,10 @@ while ($tries++ < 48) {
     /* While EF40 awaits its photo, its two-page language versions can use
        more breathing room between rows rather than leave sparse lower pages. */
     $maxPad = ($photoPending && $hasP2) ? 3.4 : 1.9;
-    /* PM30 and PM50 second pages can use their available space without
-       affecting first-page photo size or the approved 10pt text. PM50's
-       balanced feature continuation has room for a little more row spacing. */
-    $maxPad2 = ($cat === 'trailer-concrete-pumps' && $model === 'pump-pm-50') ? 5.2
+    /* The revised forklift sheets and PM30/50 can use more of page two
+       without affecting the first-page photograph or the 10pt table text. */
+    $maxPad2 = (($cat === 'trailer-concrete-pumps' && $model === 'pump-pm-50')
+        || ($cat === 'electric-forklifts' && in_array($model, ['ef15', 'ef20', 'ef25', 'ef30', 'ef35', 'ef40'], true) && $hero)) ? 5.2
         : (($cat === 'trailer-concrete-pumps' && $model === 'pump-pm-30') ? 3.4 : $maxPad);
     $p1html = '';
     if ($hero) $p1html .= '<div style="text-align:center;padding:0 0 3mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:' . $heroCap . 'mm" /></div>';

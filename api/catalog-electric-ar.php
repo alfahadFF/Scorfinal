@@ -350,7 +350,7 @@ $logo = $ROOT . '/assets/img/companies/scor-logo-white.png';
 $wedge = $ROOT . '/assets/img/brochure/wedge.png';
 $pin = '<span style="color:#f5b400">&#8226;</span> ';
 $foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-5mm"><tr>'
-      . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">للمعدات الثقيلة والشحن الدولي<br/>SCOR Heavy Equipment &amp; International Shipping</div></td>'
+      . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><br/><div class="fb" dir="rtl" style="text-align:left">للمعدات الثقيلة والشحن الدولي</div></td>'
       . '<td class="fc" width="23%">' . $pin . '<b>الإدارة العامة (ألمانيا)</b><br/>004915118316638<br/>004917634389434</td>'
       . '<td class="fc" width="17%">' . $pin . '<b>مكتب حمص</b><br/>00963939062887</td>'
       . '<td class="fc" width="15%">' . $pin . '<b>مكتب درعا</b><br/>00963941435541</td>'
@@ -416,7 +416,7 @@ $html = '<style>' . $css . '</style>'
 if ($topModel['hero']) {
     $html .= '<div style="text-align:center"><img src="' . $topModel['hero'] . '" style="width:118mm;max-height:74mm" /></div>';
 }
-$html .= '<table class="ov"><tr><th>الموديل</th><th>أقصى حمولة</th><th>ارتفاع الرفع</th><th>البطارية</th><th>زمن العمل</th></tr>';
+$html .= '<table class="ov"><tr><th>الموديل</th><th>الحمولة</th><th>ارتفاع الرفع</th><th>البطارية</th><th>زمن العمل</th></tr>';
 $i = 0;
 foreach ($models as $m) {
     $cls = ($i++ % 2) ? ' class="alt"' : '';
@@ -439,6 +439,10 @@ foreach ($models as $m) {
     /* model name + short description ride inside the header band */
     $mpdf->SetHTMLHeader(bandHeader($bandFile, $bandH, 'SCOR ' . $m['code'], headIntro($m['intro'])));
     $h = '<pagebreak />';
+    /* EF40's sourced descriptive rows and real photo both need room on its
+       catalog page. Tighten only its vertical cell padding, never the 10pt
+       font or 98mm columns. Earlier model pages are already rendered. */
+    if ($m['slug'] === 'ef40') $h .= '<style>.rows td{padding:0.55mm 2.6mm}</style>';
     if ($m['hero']) {
         $h .= '<div style="text-align:center;padding:0 0 3mm"><img src="' . $m['hero'] . '" style="width:150mm;max-height:66mm" /></div>';
     } elseif ($m['slug'] === 'ef40') {
