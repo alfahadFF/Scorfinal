@@ -267,10 +267,11 @@ function estH($g) {
 }
 function columns($gs, $wedge) {
     if (!$gs) return '';
-    /* For EF40's longer supplied descriptions, select the most balanced
+    /* For EF40 and the expanded PM30/PM50 sheets, select the most balanced
        sequential column break, including row-level splits with >=2 rows on
-       either side. No text, sizes or existing-model layouts are altered. */
-    if (($GLOBALS['model'] ?? '') === 'ef40' && !empty($GLOBALS['onePage'])) {
+       either side. Other models' layouts are unchanged. */
+    if ((($GLOBALS['model'] ?? '') === 'ef40' && !empty($GLOBALS['onePage']))
+        || (($GLOBALS['cat'] ?? '') === 'trailer-concrete-pumps' && in_array(($GLOBALS['model'] ?? ''), ['pump-pm-30', 'pump-pm-50'], true))) {
         $best = null; $bestDiff = INF; $count = count($gs);
         $consider = function ($a, $b) use (&$best, &$bestDiff) {
             if (!$a || !$b) return;
@@ -283,7 +284,13 @@ function columns($gs, $wedge) {
         foreach ($gs as $i => $g) {
             if ($i > 0) $consider(array_slice($gs, 0, $i), array_slice($gs, $i));
             $n = count($g['rows']);
-            if (!isListGroup($g) && !isLetterGroup($g) && $n >= 4) {
+            /* PM50 has a longer combined feature list. Let it continue in
+               the next column, still one item per row and at least two items
+               per part. Standard/optional/notes lists remain untouched. */
+            $pm50Features = (($GLOBALS['cat'] ?? '') === 'trailer-concrete-pumps'
+                && ($GLOBALS['model'] ?? '') === 'pump-pm-50'
+                && in_array($g['title'], ['المميزات', 'Features', 'Merkmale', 'Özellikler'], true));
+            if ((!isListGroup($g) || $pm50Features) && !isLetterGroup($g) && $n >= 4) {
                 for ($k = 2; $k <= $n - 2; $k++) {
                     $a = array_slice($gs, 0, $i);
                     $a[] = ['title' => $g['title'], 'rows' => array_slice($g['rows'], 0, $k)];
@@ -373,8 +380,15 @@ $band = '<img src="' . $bandFile . '" style="width:210mm;margin-left:-5mm" />'
       . ($headIntro !== '' ? '<div style="font-size:8.5pt;line-height:1.5;color:#242424;padding-top:1.6mm">' . htmlspecialchars($headIntro) . '</div>' : '')
       . '</div>';
 $pin = '<span style="color:#f5b400">&#8226;</span> ';
+$footBrand = '<img src="' . $logo . '" height="10mm" /><div class="fb">' . $L['brand'] . '<br/>SCOR Heavy Equipment &amp; International Shipping</div>';
+if ($cat === 'trailer-concrete-pumps' && in_array($model, ['pump-pm-30', 'pump-pm-50'], true)) {
+    /* Keep the exact localized tagline on its own line below the logo. The
+       legacy inline image split the first Arabic letter onto the logo line. */
+    $footBrand = '<img src="' . $logo . '" height="10mm" /><br/><div class="fb"'
+        . ($rtl ? ' dir="rtl" style="text-align:left"' : '') . '>' . htmlspecialchars($L['brand']) . '</div>';
+}
 $foot = '<table width="100%" cellpadding="0" cellspacing="0" dir="ltr" style="background:#0c0d10;border-top:1.2mm solid #f5b400;width:210mm;margin-left:-5mm"><tr>'
-      . '<td width="31%" style="padding:3mm 5mm"><img src="' . $logo . '" height="10mm" /><div class="fb">' . $L['brand'] . '<br/>SCOR Heavy Equipment &amp; International Shipping</div></td>'
+      . '<td width="31%" style="padding:3mm 5mm">' . $footBrand . '</td>'
       . '<td class="fc" width="23%">' . $pin . '<b>' . $L['hq'] . '</b><br/>004915118316638<br/>004917634389434</td>'
       . '<td class="fc" width="17%">' . $pin . '<b>' . $L['homs'] . '</b><br/>00963939062887</td>'
       . '<td class="fc" width="15%">' . $pin . '<b>' . $L['daraa'] . '</b><br/>00963941435541</td>'
@@ -519,6 +533,47 @@ if ($onePage) {
 } else {
     $p2groups = array_merge($dims, array_reverse($moved), $anglesG ? [$anglesG] : [], $notesG ? [$notesG] : []);
 }
+/* PM30 has a full supplied feature list plus retained earlier data.
+   Defer the earlier mechanical group and both lists before measurement to
+   keep the photograph large and avoid mPDF shrinking first-page text below
+   the approved 10pt. Other models' brochures are not changed. */
+if ($cat === 'trailer-concrete-pumps' && $model === 'pump-pm-30') {
+    $deferTitles = [
+        'ar' => ['البيانات الميكانيكية (بيانات سابقة)', 'المميزات', 'مميزات إضافية (بيانات سابقة)'],
+        'en' => ['Mechanical Data (Previous Data)', 'Features', 'Additional Features (Previous Data)'],
+        'de' => ['Mechanische Daten (frühere Angaben)', 'Merkmale', 'Weitere Merkmale (frühere Angaben)'],
+        'tr' => ['Mekanik Veriler (Önceki Bilgiler)', 'Özellikler', 'Ek Özellikler (Önceki Bilgiler)'],
+    ][$lang];
+    $kept = []; $deferred = [];
+    foreach ($p1 as $g) {
+        if (in_array($g['title'], $deferTitles, true)) $deferred[] = $g;
+        else $kept[] = $g;
+    }
+    if (count($deferred) === 3) {
+        $p1 = $kept;
+        array_splice($p2groups, count($dims), 0, $deferred);
+    }
+}
+/* The updated PM50 combines the supplied features with the retained ones.
+   Move its mechanical data and feature list to page 2 so the large photo and
+   the approved 10pt/98mm layout remain intact on the first page. */
+if ($cat === 'trailer-concrete-pumps' && $model === 'pump-pm-50') {
+    $deferTitles = [
+        'ar' => ['البيانات الميكانيكية', 'المميزات'],
+        'en' => ['Mechanical Data', 'Features'],
+        'de' => ['Mechanische Daten', 'Merkmale'],
+        'tr' => ['Mekanik Veriler', 'Özellikler'],
+    ][$lang];
+    $kept = []; $deferred = [];
+    foreach ($p1 as $g) {
+        if (in_array($g['title'], $deferTitles, true)) $deferred[] = $g;
+        else $kept[] = $g;
+    }
+    if (count($deferred) === 2) {
+        $p1 = $kept;
+        array_splice($p2groups, count($dims), 0, $deferred);
+    }
+}
 $drawCap = 84; $drawH = 0;
 if ($drawing) { $ds = getimagesize($drawing); if ($ds) $drawH = min($drawCap, 190 * $ds[1] / $ds[0]) + 4; }
 $notesH = $noteLines || true ? 0 : 0;
@@ -582,6 +637,11 @@ while ($tries++ < 48) {
     /* While EF40 awaits its photo, its two-page language versions can use
        more breathing room between rows rather than leave sparse lower pages. */
     $maxPad = ($photoPending && $hasP2) ? 3.4 : 1.9;
+    /* PM30 and PM50 second pages can use their available space without
+       affecting first-page photo size or the approved 10pt text. PM50's
+       balanced feature continuation has room for a little more row spacing. */
+    $maxPad2 = ($cat === 'trailer-concrete-pumps' && $model === 'pump-pm-50') ? 5.2
+        : (($cat === 'trailer-concrete-pumps' && $model === 'pump-pm-30') ? 3.4 : $maxPad);
     $p1html = '';
     if ($hero) $p1html .= '<div style="text-align:center;padding:0 0 3mm"><img src="' . $hero . '" style="width:' . $heroW . 'mm;max-height:' . $heroCap . 'mm" /></div>';
     elseif ($photoPending) $p1html .= '<div style="margin:0 25mm 4mm;padding:12mm 3mm;text-align:center;background:#FFFFFF;border:0.3mm solid #667085;color:#667085;font-size:11pt">' . htmlspecialchars($photoPendingText) . '</div>';
@@ -718,7 +778,7 @@ while ($tries++ < 48) {
         if ($heroCap < 100) { $heroCap = min(100, $heroCap + 6); continue; }
         $phase = 's1';
         if ($pad1 < $maxPad) { $pad1 = min($maxPad, round($pad1 + 0.3, 2)); continue; }
-        if ($hasP2 && $pad2 < $maxPad) { $pad2 = min($maxPad, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
+        if ($hasP2 && $pad2 < $maxPad2) { $pad2 = min($maxPad2, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
         break;
     }
     if ($phase === 's0') {
@@ -731,12 +791,12 @@ while ($tries++ < 48) {
     if ($phase === 's1') {
         $ok1 = $pad1;
         if ($pad1 < $maxPad) { $pad1 = min($maxPad, round($pad1 + 0.3, 2)); continue; }
-        if ($hasP2 && $pad2 < $maxPad) { $pad2 = min($maxPad, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
+        if ($hasP2 && $pad2 < $maxPad2) { $pad2 = min($maxPad2, round($pad2 + 0.3, 2)); $phase = 's2'; continue; }
         break;
     }
     if ($phase === 's2') {
         $ok2 = $pad2;
-        if ($pad2 < $maxPad) { $pad2 = min($maxPad, round($pad2 + 0.3, 2)); continue; }
+        if ($pad2 < $maxPad2) { $pad2 = min($maxPad2, round($pad2 + 0.3, 2)); continue; }
         break;
     }
     break;
