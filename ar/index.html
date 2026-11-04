@@ -351,7 +351,7 @@
 <canvas class="canvas js-canvas"></canvas>
 </div>
 <div class="image cover">
-<img alt="" decoding="async" loading="lazy" src="/assets/img/custom/index/slides/1.jpg"/>
+<img alt="" decoding="async" loading="eager" src="/assets/img/custom/index/slides/1.jpg"/>
 </div>
 </div>
 <div class="layer">
@@ -442,6 +442,10 @@
                         }
 
 
+                        /* Keep the adjacent labels inside their own cards. */
+                        #productGroups ul li .title a[href$="trailer-concrete-pumps.html"],
+                        #productGroups ul li .title a[href$="attachments.html"] {line-height:1.2;overflow-wrap:anywhere;}
+
                         @media only screen and (max-width: 40.063em) {
                             #productGroups ul {margin:0px 0px 10px}
                             #productGroups ul li>div {    padding: 20px 0;border-top:solid 1px #DDD}
@@ -449,21 +453,29 @@
                             #productGroups ul li:first-child + li > div {border-top:0px}
                             #productGroups ul li .title {height:44px;}
                             #productGroups ul li .title a {font-size: 14px;line-height: 16px;}
+                            #productGroups ul li.scor-mortar-card .title a,
+                            #productGroups ul li .title a[href$="trailer-concrete-pumps.html"],
+                            #productGroups ul li .title a[href$="attachments.html"] {font-size: 12px;line-height:1.2;}
                             #productGroups ul li {border:0px;}
+                        }
+                        @media only screen and (max-width: 360px) {
+                            #productGroups ul li.scor-mortar-card .title a,
+                            #productGroups ul li .title a[href$="trailer-concrete-pumps.html"],
+                            #productGroups ul li .title a[href$="attachments.html"] {font-size: 11px;}
                         }
                     </style>
 <ul class="productGroups row collapse">
-<li class="columns small-3"><div class="transition"><div class="title"><a href="products/crawler-excavators.html">حفارات مجنزرة</a></div><div class="sub"></div><div class="image"><a href="products/crawler-excavators.html"><img alt="حفارات مجنزرة" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/crawler-excavators.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="products/diesel-forklifts.html">رافعات شوكية ديزل</a></div><div class="sub"></div><div class="image"><a href="products/diesel-forklifts.html"><img alt="رافعات شوكية ديزل" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/diesel-forklifts.jpg" width="360"/></a></div></div></li><li class="columns small-3"><div class="transition"><div class="title"><a href="products/electric-forklifts.html">رافعات شوكية كهربائية</a></div><div class="sub"></div><div class="image"><a href="products/electric-forklifts.html"><img alt="رافعات شوكية كهربائية" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/electric-forklifts.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="products/wheel-excavators.html">حفارات بعجلات</a></div><div class="sub"></div><div class="image"><a href="products/wheel-excavators.html"><img alt="حفارات بعجلات" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/wheel-excavators.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="products/wheel-loaders.html">لوادر بعجلات</a></div><div class="sub"></div><div class="image"><a href="products/wheel-loaders.html"><img alt="لوادر بعجلات" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/wheel-loaders.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="products/backhoe-loaders.html">لوادر حفارة</a></div><div class="sub"></div><div class="image"><a href="products/backhoe-loaders.html"><img alt="لوادر حفارة" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/backhoe-loaders.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="products/skid-steer-loaders.html">لوادر انزلاقية</a></div><div class="sub"></div><div class="image"><a href="products/skid-steer-loaders.html"><img alt="لوادر انزلاقية" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/skid-steer-loaders.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="products/crawler-excavators.html">حفارات مجنزرة</a></div><div class="sub"></div><div class="image"><a href="products/crawler-excavators.html"><img alt="حفارات مجنزرة" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/crawler-excavators.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="products/diesel-forklifts.html">رافعات شوكية ديزل</a></div><div class="sub"></div><div class="image"><a href="products/diesel-forklifts.html"><img alt="رافعات شوكية ديزل" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/diesel-forklifts.jpg" width="360"/></a></div></div></li><li class="columns small-3"><div class="transition"><div class="title"><a href="products/electric-forklifts.html">رافعات شوكية كهربائية</a></div><div class="sub"></div><div class="image"><a href="products/electric-forklifts.html"><img alt="رافعات شوكية كهربائية" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/electric-forklifts.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="products/wheel-excavators.html">حفارات بعجلات</a></div><div class="sub"></div><div class="image"><a href="products/wheel-excavators.html"><img alt="حفارات بعجلات" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/wheel-excavators.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="products/wheel-loaders.html">لوادر بعجلات</a></div><div class="sub"></div><div class="image"><a href="products/wheel-loaders.html"><img alt="لوادر بعجلات" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/wheel-loaders.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="products/backhoe-loaders.html">لوادر حفارة</a></div><div class="sub"></div><div class="image"><a href="products/backhoe-loaders.html"><img alt="لوادر حفارة" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/backhoe-loaders.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="products/skid-steer-loaders.html">لوادر انزلاقية</a></div><div class="sub"></div><div class="image"><a href="products/skid-steer-loaders.html"><img alt="لوادر انزلاقية" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/skid-steer-loaders.jpg" width="360"/></a></div></div></li>
 
 
 
-<li class="columns small-3"><div class="transition"><div class="title"><a href="products/self-loading-mixers.html">خلاطات ذاتية التعبئة</a></div><div class="sub"></div><div class="image"><a href="products/self-loading-mixers.html"><img alt="خلاطات ذاتية التعبئة" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/self-loading-mixers.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="products/trailer-concrete-pumps.html">مضخات خرسانة مقطورة</a></div><div class="sub"></div><div class="image"><a href="products/trailer-concrete-pumps.html"><img alt="مضخات خرسانة مقطورة" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/trailer-concrete-pumps.jpg" width="360"/></a></div></div></li><li class="columns small-3"><div class="transition"><div class="title"><a href="products/attachments.html">الملحقات</a></div><div class="sub"></div><div class="image"><a href="products/attachments.html"><img alt="الملحقات" decoding="async" height="202" loading="lazy" src="../assets/img/cat-illus/attachments.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="products/self-loading-mixers.html">خلاطات ذاتية التعبئة</a></div><div class="sub"></div><div class="image"><a href="products/self-loading-mixers.html"><img alt="خلاطات ذاتية التعبئة" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/self-loading-mixers.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="products/trailer-concrete-pumps.html">مضخات خرسانة مقطورة</a></div><div class="sub"></div><div class="image"><a href="products/trailer-concrete-pumps.html"><img alt="مضخات خرسانة مقطورة" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/trailer-concrete-pumps.jpg" width="360"/></a></div></div></li><li class="columns small-3 scor-mortar-card"><div class="transition"><div class="title"><a href="products/mortar-spraying-machines.html" style="line-height:1.2;overflow-wrap:anywhere;">ماكينات رش الملاط واللياسة</a></div><div class="sub"></div><div class="image"><a href="products/mortar-spraying-machines.html"><img alt="ماكينات رش الملاط واللياسة — SCOR MS 50" decoding="async" height="765" loading="eager" src="../assets/img/scor-products/ms50/1.jpg" width="1024" style="width:100%;height:auto;aspect-ratio:16 / 9;object-fit:contain;"/></a></div></div></li><li class="columns small-3"><div class="transition"><div class="title"><a href="products/attachments.html">الملحقات</a></div><div class="sub"></div><div class="image"><a href="products/attachments.html"><img alt="الملحقات" decoding="async" height="202" loading="eager" src="../assets/img/cat-illus/attachments.jpg" width="360"/></a></div></div></li>
 </ul>
 </div>
 </section>

@@ -348,7 +348,7 @@
 <canvas class="canvas js-canvas"></canvas>
 </div>
 <div class="image cover">
-<img alt="" decoding="async" loading="lazy" src="assets/img/custom/index/slides/1.jpg"/>
+<img alt="" decoding="async" loading="eager" src="assets/img/custom/index/slides/1.jpg"/>
 </div>
 </div>
 <div class="layer">
@@ -440,6 +440,10 @@
                         }
 
 
+                        /* Keep the adjacent labels inside their own cards. */
+                        #productGroups ul li .title a[href$="trailer-concrete-pumps.html"],
+                        #productGroups ul li .title a[href$="attachments.html"] {line-height:1.2;overflow-wrap:anywhere;}
+
                         @media only screen and (max-width: 40.063em) {
                             #productGroups ul {margin:0px 0px 10px}
                             #productGroups ul li>div {    padding: 20px 0;border-top:solid 1px #DDD}
@@ -447,21 +451,29 @@
                             #productGroups ul li:first-child + li > div {border-top:0px}
                             #productGroups ul li .title {height:44px;}
                             #productGroups ul li .title a {font-size: 14px;line-height: 16px;}
+                            #productGroups ul li.scor-mortar-card .title a,
+                            #productGroups ul li .title a[href$="trailer-concrete-pumps.html"],
+                            #productGroups ul li .title a[href$="attachments.html"] {font-size: 12px;line-height:1.2;}
                             #productGroups ul li {border:0px;}
+                        }
+                        @media only screen and (max-width: 360px) {
+                            #productGroups ul li.scor-mortar-card .title a,
+                            #productGroups ul li .title a[href$="trailer-concrete-pumps.html"],
+                            #productGroups ul li .title a[href$="attachments.html"] {font-size: 11px;}
                         }
                     </style>
 <ul class="productGroups row collapse">
-<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/crawler-excavators.html">CRAWLER EXCAVATORS</a></div><div class="sub"></div><div class="image"><a href="en/products/crawler-excavators.html"><img alt="CRAWLER EXCAVATORS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/crawler-excavators.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/diesel-forklifts.html">DIESEL FORKLIFTS</a></div><div class="sub"></div><div class="image"><a href="en/products/diesel-forklifts.html"><img alt="DIESEL FORKLIFTS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/diesel-forklifts.jpg" width="360"/></a></div></div></li><li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/electric-forklifts.html">ELECTRIC FORKLIFTS</a></div><div class="sub"></div><div class="image"><a href="en/products/electric-forklifts.html"><img alt="ELECTRIC FORKLIFTS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/electric-forklifts.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/wheel-excavators.html">WHEEL EXCAVATORS</a></div><div class="sub"></div><div class="image"><a href="en/products/wheel-excavators.html"><img alt="WHEEL EXCAVATORS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/wheel-excavators.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/wheel-loaders.html">WHEEL LOADERS</a></div><div class="sub"></div><div class="image"><a href="en/products/wheel-loaders.html"><img alt="WHEEL LOADERS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/wheel-loaders.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/backhoe-loaders.html">BACKHOE LOADERS</a></div><div class="sub"></div><div class="image"><a href="en/products/backhoe-loaders.html"><img alt="BACKHOE LOADERS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/backhoe-loaders.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/skid-steer-loaders.html">SKID STEER LOADERS</a></div><div class="sub"></div><div class="image"><a href="en/products/skid-steer-loaders.html"><img alt="SKID STEER LOADERS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/skid-steer-loaders.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/crawler-excavators.html">CRAWLER EXCAVATORS</a></div><div class="sub"></div><div class="image"><a href="en/products/crawler-excavators.html"><img alt="CRAWLER EXCAVATORS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/crawler-excavators.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/diesel-forklifts.html">DIESEL FORKLIFTS</a></div><div class="sub"></div><div class="image"><a href="en/products/diesel-forklifts.html"><img alt="DIESEL FORKLIFTS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/diesel-forklifts.jpg" width="360"/></a></div></div></li><li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/electric-forklifts.html">ELECTRIC FORKLIFTS</a></div><div class="sub"></div><div class="image"><a href="en/products/electric-forklifts.html"><img alt="ELECTRIC FORKLIFTS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/electric-forklifts.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/wheel-excavators.html">WHEEL EXCAVATORS</a></div><div class="sub"></div><div class="image"><a href="en/products/wheel-excavators.html"><img alt="WHEEL EXCAVATORS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/wheel-excavators.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/wheel-loaders.html">WHEEL LOADERS</a></div><div class="sub"></div><div class="image"><a href="en/products/wheel-loaders.html"><img alt="WHEEL LOADERS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/wheel-loaders.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/backhoe-loaders.html">BACKHOE LOADERS</a></div><div class="sub"></div><div class="image"><a href="en/products/backhoe-loaders.html"><img alt="BACKHOE LOADERS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/backhoe-loaders.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/skid-steer-loaders.html">SKID STEER LOADERS</a></div><div class="sub"></div><div class="image"><a href="en/products/skid-steer-loaders.html"><img alt="SKID STEER LOADERS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/skid-steer-loaders.jpg" width="360"/></a></div></div></li>
 
 
 
-<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/self-loading-mixers.html">SELF-LOADING MIXERS</a></div><div class="sub"></div><div class="image"><a href="en/products/self-loading-mixers.html"><img alt="SELF-LOADING MIXERS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/self-loading-mixers.jpg" width="360"/></a></div></div></li>
-<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/trailer-concrete-pumps.html">TRAILER CONCRETE PUMPS</a></div><div class="sub"></div><div class="image"><a href="en/products/trailer-concrete-pumps.html"><img alt="TRAILER CONCRETE PUMPS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/trailer-concrete-pumps.jpg" width="360"/></a></div></div></li><li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/attachments.html">ATTACHMENTS</a></div><div class="sub"></div><div class="image"><a href="en/products/attachments.html"><img alt="ATTACHMENTS" decoding="async" height="202" loading="lazy" src="assets/img/cat-illus/attachments.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/self-loading-mixers.html">SELF-LOADING MIXERS</a></div><div class="sub"></div><div class="image"><a href="en/products/self-loading-mixers.html"><img alt="SELF-LOADING MIXERS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/self-loading-mixers.jpg" width="360"/></a></div></div></li>
+<li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/trailer-concrete-pumps.html">TRAILER CONCRETE PUMPS</a></div><div class="sub"></div><div class="image"><a href="en/products/trailer-concrete-pumps.html"><img alt="TRAILER CONCRETE PUMPS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/trailer-concrete-pumps.jpg" width="360"/></a></div></div></li><li class="columns small-3 scor-mortar-card"><div class="transition"><div class="title"><a href="en/products/mortar-spraying-machines.html" style="line-height:1.2;overflow-wrap:anywhere;">MORTAR SPRAYING MACHINES</a></div><div class="sub"></div><div class="image"><a href="en/products/mortar-spraying-machines.html"><img alt="MORTAR SPRAYING MACHINES — SCOR MS 50" decoding="async" height="765" loading="eager" src="assets/img/scor-products/ms50/1.jpg" width="1024" style="width:100%;height:auto;aspect-ratio:16 / 9;object-fit:contain;"/></a></div></div></li><li class="columns small-3"><div class="transition"><div class="title"><a href="en/products/attachments.html">ATTACHMENTS</a></div><div class="sub"></div><div class="image"><a href="en/products/attachments.html"><img alt="ATTACHMENTS" decoding="async" height="202" loading="eager" src="assets/img/cat-illus/attachments.jpg" width="360"/></a></div></div></li>
 </ul>
 </div>
 </section>

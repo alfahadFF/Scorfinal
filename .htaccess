@@ -6,6 +6,10 @@ RewriteEngine On
 RewriteCond %{HTTPS} off [OR]
 RewriteCond %{HTTP_HOST} !^www\.scor-sy\.de$ [NC]
 RewriteRule ^ https://www.scor-sy.de%{REQUEST_URI} [L,R=301]
+
+# Wheel-loader model changes: keep old bookmarks useful.
+RewriteRule ^(en|ar|de|tr)/products/wheel-loaders/sy380(?:\.html)?/?$ /$1/products/wheel-loaders/l38.html [R=301,L]
+RewriteRule ^(en|ar|de|tr)/products/wheel-loaders/(?:sy16-2|sy20-3|sy25|sy30|sy35)(?:\.html)?/?$ /$1/products/wheel-loaders.html [R=301,L]
 </IfModule>
 
 <IfModule mod_deflate.c>
