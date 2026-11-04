@@ -55,3 +55,154 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addMortarCategory);
   else addMortarCategory();
 })();
+
+/* SCOR desktop navigation: hover, click and keyboard without locking page scroll. */
+(function () {
+  'use strict';
+  var desktop = window.matchMedia('(min-width: 1025px)');
+
+  function init() {
+    var header = document.getElementById('subHeader');
+    if (!header || header.dataset.scorDesktopNav === 'ready') return;
+    var items = Array.prototype.slice.call(header.querySelectorAll('.headerNav .main-nav li.link')).filter(function (item) {
+      return item.querySelector(':scope > a.scrs') && item.querySelector(':scope > .dropDown');
+    });
+    if (!items.length) return;
+    header.dataset.scorDesktopNav = 'ready';
+
+    // The original theme binds hover to pageLock(true). Desktop menus must not
+    // disable scrolling or the browser's keyboard handlers while merely hovered.
+    if (window.jQuery) window.jQuery(items).off('mouseenter mouseleave');
+
+    var globe = header.querySelector('.scor-lang-btn span');
+    var globeMobileLabel = globe ? globe.textContent : '';
+    var labels = { ar: 'عربي', en: 'EN', de: 'DE', tr: 'TR' };
+    var language = (document.documentElement.lang || 'en').toLowerCase().split('-')[0];
+    var controlFor = function (item) { return item.querySelector(':scope > a.scrs'); };
+    var panelFor = function (item) { return item.querySelector(':scope > .dropDown'); };
+
+    function positionPanel(item) {
+      var panel = panelFor(item), margin = 12;
+      var overflow = function (rect) {
+        return Math.max(0, margin - rect.left) + Math.max(0, rect.right - (window.innerWidth - margin));
+      };
+      panel.style.removeProperty('--scor-panel-shift');
+      item.classList.remove('scor-nav-end');
+      var startRect = panel.getBoundingClientRect();
+      item.classList.add('scor-nav-end');
+      var endRect = panel.getBoundingClientRect();
+      if (overflow(startRect) <= overflow(endRect)) item.classList.remove('scor-nav-end');
+      var rect = panel.getBoundingClientRect();
+      var shift = Math.max(0, margin - rect.left) - Math.max(0, rect.right - (window.innerWidth - margin));
+      if (shift) panel.style.setProperty('--scor-panel-shift', shift + 'px');
+    }
+    function setExpanded(item, expanded) {
+      controlFor(item).setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+    function closeItem(item, suppress) {
+      item.classList.remove('scor-nav-open');
+      if (suppress) item.classList.add('scor-nav-suppressed');
+      else item.classList.remove('scor-nav-suppressed');
+      setExpanded(item, false);
+    }
+    function closeOthers(except, forceSuppress) {
+      items.forEach(function (item) {
+        if (item === except) return;
+        var stillEngaged = item.matches(':hover') || item.contains(document.activeElement);
+        closeItem(item, forceSuppress || stillEngaged);
+      });
+    }
+    function begin(item) {
+      closeOthers(item, false);
+      item.classList.remove('scor-nav-suppressed');
+      positionPanel(item);
+      setExpanded(item, true);
+    }
+    function toggle(item) {
+      var isPinned = item.classList.contains('scor-nav-open');
+      if (isPinned) closeItem(item, true);
+      else {
+        begin(item);
+        item.classList.add('scor-nav-open');
+      }
+    }
+    function updateViewport() {
+      if (globe) globe.textContent = desktop.matches ? (labels[language] || 'EN') : globeMobileLabel;
+      if (!desktop.matches) {
+        items.forEach(function (item) { closeItem(item, false); item.classList.remove('scor-nav-end'); panelFor(item).style.removeProperty('--scor-panel-shift'); });
+      } else {
+        items.forEach(function (item) {
+          if (item.classList.contains('scor-nav-open') || item.matches(':hover') || item.contains(document.activeElement)) positionPanel(item);
+        });
+      }
+    }
+    items.forEach(function (item, index) {
+      var control = controlFor(item);
+      var panel = panelFor(item);
+      if (!panel.id) panel.id = 'scor-desktop-menu-' + (index + 1);
+      control.setAttribute('role', 'button');
+      control.setAttribute('tabindex', '0');
+      control.setAttribute('aria-haspopup', 'true');
+      control.setAttribute('aria-controls', panel.id);
+      control.setAttribute('aria-expanded', 'false');
+      item.classList.remove('active');
+
+      item.addEventListener('mouseenter', function () { if (desktop.matches) begin(item); });
+      item.addEventListener('mouseleave', function () {
+        if (!desktop.matches) return;
+        if (!item.classList.contains('scor-nav-open') && !item.contains(document.activeElement)) {
+          item.classList.remove('scor-nav-suppressed');
+          setExpanded(item, false);
+        }
+      });
+      item.addEventListener('focusin', function () {
+        if (desktop.matches && !item.classList.contains('scor-nav-suppressed')) begin(item);
+      });
+      item.addEventListener('focusout', function () {
+        if (!desktop.matches) return;
+        window.setTimeout(function () {
+          if (!item.contains(document.activeElement) && !item.classList.contains('scor-nav-open') && !item.matches(':hover')) {
+            closeItem(item, false);
+          }
+        }, 0);
+      });
+      control.addEventListener('click', function (event) {
+        if (!desktop.matches) return;
+        event.preventDefault();
+        toggle(item);
+      });
+      control.addEventListener('keydown', function (event) {
+        if (!desktop.matches) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          toggle(item);
+        } else if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          begin(item);
+          item.classList.add('scor-nav-open');
+          var first = panel.querySelector('a[href]');
+          if (first) first.focus();
+        }
+      });
+    });
+    document.addEventListener('click', function (event) {
+      if (!desktop.matches) return;
+      var inside = items.some(function (item) { return item.contains(event.target); });
+      if (!inside) closeOthers(null, false);
+    });
+    document.addEventListener('keydown', function (event) {
+      if (!desktop.matches || event.key !== 'Escape') return;
+      var current = items.find(function (item) { return item.contains(document.activeElement); });
+      closeOthers(null, true);
+      if (current) controlFor(current).focus();
+    });
+    window.addEventListener('scroll', function () { if (desktop.matches) closeOthers(null, true); }, { passive: true });
+    window.addEventListener('resize', updateViewport);
+    updateViewport();
+  }
+
+  // Use the native ready event: an unrelated legacy jQuery-ready error on some
+  // pages can prevent later jQuery callbacks from running.
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();

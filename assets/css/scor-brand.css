@@ -112,3 +112,172 @@ footer .logo img, .sf-brand img { height: 30px !important; width: auto !importan
 .scor-lang-btn{position:fixed!important;top:14px!important;inset-inline-end:74px!important;z-index:100000!important;display:inline-flex!important;align-items:center!important;gap:7px!important;padding:8px 13px!important;background:rgba(21,21,21,.72)!important;border:1px solid rgba(245,180,0,.9)!important;border-radius:999px!important;color:#F5B400!important;font:700 12px/1 Arial,sans-serif!important;letter-spacing:.06em!important;cursor:pointer!important;backdrop-filter:blur(3px)}
 .scor-lang-btn:hover{background:rgba(21,21,21,.9)!important;color:#FFD34D!important}
 @media (max-width:640px){.scor-lang-btn{top:10px!important;inset-inline-end:64px!important;padding:7px 10px!important}}
+
+/* SCOR desktop navigation: shared desktop-only layout, dropdowns and contrast. */
+@media (min-width: 1025px) {
+  #subHeader { height: auto !important; padding-top: 0 !important; background: transparent !important; }
+  body.fixed #subHeader { height: auto !important; }
+  #subHeader > div { background: #fff !important; }
+  body.page-index #subHeader > div { background: transparent !important; }
+  #subHeader #altBar { display: block !important; background: #242424 !important; }
+  #subHeader #searchContainer { display: block !important; }
+  #subHeader nav.openNav { display: none !important; }
+  #subHeader .headerNav { display: block !important; background: #151515; position: relative; z-index: 2; }
+  #subHeader .headerNav > nav.row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 190px minmax(0, 1fr);
+    align-items: center !important;
+    gap: 16px;
+    height: 76px;
+    max-width: 1448px;
+    margin: 0 auto !important;
+    padding: 0 16px !important;
+  }
+  #subHeader .headerNav > nav.row > nav.main-nav {
+    display: flex !important; align-items: center; min-width: 0; width: auto !important;
+    max-width: none !important; height: 76px; margin: 0 !important; padding: 0 !important;
+  }
+  #subHeader .headerNav > nav.row > nav.main-nav:first-child { justify-content: flex-end; }
+  #subHeader .headerNav > nav.row > nav.main-nav:last-child { justify-content: flex-start; }
+  #subHeader .headerNav > nav.row > nav.main-nav > .row,
+  #subHeader .headerNav > nav.row > nav.main-nav > .row > ul {
+    display: flex !important; align-items: center; flex-wrap: nowrap !important;
+    width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important;
+  }
+  #subHeader .headerNav > nav.row > div.columns {
+    display: flex !important; align-items: center; justify-content: center;
+    width: 190px !important; min-width: 0 !important; max-width: none !important;
+    margin: 0 !important; padding: 0 !important;
+  }
+  #subHeader .headerNav > nav.row > div.columns > div.row,
+  #subHeader .headerNav > nav.row > div.columns > div.row > div.columns {
+    display: flex !important; flex-direction: column; align-items: center; justify-content: center;
+    width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important;
+  }
+  #subHeader .headerNav .logoWrapper {
+    display: block !important; position: relative !important; top: auto !important; left: auto !important; right: auto !important;
+    width: auto !important; margin: 0 !important; padding: 0 !important; text-align: center;
+  }
+  #subHeader .headerNav .logoWrapper img:first-child { display: none !important; }
+  #subHeader .headerNav .logoWrapper img.ng {
+    display: block !important; position: relative !important; top: auto !important; left: auto !important; right: auto !important;
+    width: auto !important; height: 29px !important; margin: 0 auto !important; padding: 0 !important;
+  }
+  #subHeader .headerNav .scor-tagline {
+    display: block; position: static !important; margin: 5px 0 0 !important; padding: 0;
+    text-align: center; font-size: 9px; line-height: 1; letter-spacing: .16em; color: #F5B400;
+  }
+  #subHeader .main-nav li.link { position: relative !important; flex: 0 0 auto; border: 0 !important; padding: 0 !important; margin: 0 !important; }
+  #subHeader .main-nav li.link > a.scrs {
+    display: inline-flex !important; align-items: center; justify-content: center; gap: 6px;
+    height: 76px; padding: 0 12px !important; color: #fff !important; white-space: nowrap;
+    font-size: 15px !important; font-weight: 600 !important; line-height: 1.2 !important; cursor: pointer;
+  }
+  #subHeader .main-nav li.link:hover > a.scrs,
+  #subHeader .main-nav li.link.scor-nav-open > a.scrs,
+  #subHeader .main-nav li.link:focus-within > a.scrs { color: #F5B400 !important; }
+  #subHeader .main-nav li.link > a.scrs:focus-visible { outline: 2px solid #F5B400; outline-offset: -5px; }
+  #subHeader .main-nav li.link > a.scrs::after { display: none !important; }
+  #subHeader .main-nav .link > .dropDown {
+    position: absolute !important; top: 100% !important; left: 0 !important; right: auto !important;
+    display: block !important; width: 265px !important; min-width: 0 !important; max-width: calc(100vw - 24px);
+    height: auto !important; margin: 0 !important; padding: 6px 0 0 !important; background: transparent !important;
+    border: 0 !important; z-index: 100; opacity: 0 !important; visibility: hidden !important;
+    pointer-events: none; transition: opacity .16s ease !important;
+    transform: translateX(var(--scor-panel-shift, 0px)) !important;
+  }
+  html[dir=rtl] #subHeader .main-nav .link > .dropDown { left: auto !important; right: 0 !important; }
+  #subHeader .main-nav .link.scor-nav-end > .dropDown { left: auto !important; right: 0 !important; }
+  html[dir=rtl] #subHeader .main-nav .link.scor-nav-end > .dropDown { left: 0 !important; right: auto !important; }
+  #subHeader .main-nav .link.scor-nav-open > .dropDown,
+  #subHeader .main-nav .link:not(.scor-nav-suppressed):focus-within > .dropDown {
+    opacity: 1 !important; visibility: visible !important; pointer-events: auto;
+  }
+  @media (hover: hover) {
+    #subHeader .main-nav .link:not(.scor-nav-suppressed):hover > .dropDown {
+      opacity: 1 !important; visibility: visible !important; pointer-events: auto;
+    }
+  }
+  #subHeader .main-nav .dropDown.mega > .wrapper {
+    overflow: hidden; margin: 0 !important; padding: 7px !important; background: #fff !important;
+    border: 1px solid rgba(102,112,133,.18) !important; border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(21,21,21,.20);
+  }
+  #subHeader .main-nav .dropDown.mega > .wrapper ul { margin: 0 !important; padding: 0 !important; list-style: none; }
+  #subHeader .main-nav .dropDown.mega > .wrapper ul li { display: block; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+  #subHeader .main-nav .dropDown.mega > .wrapper ul li a {
+    display: block !important; margin: 0 !important; padding: 10px 12px !important; border-radius: 4px;
+    color: #151515 !important; background: #fff !important; text-align: start !important; font-size: 14px !important;
+    line-height: 1.35 !important; font-weight: 500; text-decoration: none;
+  }
+  #subHeader .main-nav .dropDown.mega > .wrapper ul li:hover,
+  #subHeader .main-nav .dropDown.mega > .wrapper ul li:hover a,
+  #subHeader .main-nav .dropDown.mega > .wrapper ul li a:focus-visible {
+    background: #F5B400 !important; color: #151515 !important;
+  }
+  #subHeader .main-nav .link > .dropDown.custom { width: min(780px, calc(100vw - 32px)) !important; overflow: visible !important; }
+  #subHeader .main-nav .dropDown.custom > .row {
+    display: block !important; width: 100% !important; max-width: none !important; max-height: calc(100vh - 160px);
+    overflow: auto; margin: 0 !important; padding: 8px !important; border: 1px solid rgba(102,112,133,.18);
+    border-radius: 8px; background: #fff !important; box-shadow: 0 12px 32px rgba(21,21,21,.20);
+  }
+  #subHeader .main-nav .dropDown.custom > .row > .columns { width: 100% !important; max-width: none !important; padding: 0 !important; }
+  #subHeader .main-nav .dropDown.custom .productGroups {
+    display: grid !important; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 4px; margin: 0 !important; padding: 0 !important;
+  }
+  #subHeader .main-nav .dropDown.custom .productGroups > li {
+    width: auto !important; max-width: none !important; min-width: 0; margin: 0 !important; padding: 0 !important; border: 0 !important;
+  }
+  #subHeader .main-nav .dropDown.custom .productGroups > li > div {
+    height: 100%; width: 100%; padding: 10px !important; border: 1px solid rgba(102,112,133,.16); border-radius: 6px; box-shadow: none !important;
+  }
+  #subHeader .main-nav .dropDown.custom .productGroups > li:hover > div { border-color: #F5B400 !important; box-shadow: none !important; }
+  #subHeader .main-nav .dropDown.custom .productGroups .title { display: flex; align-items: center; justify-content: center; height: 42px; padding: 0 4px; }
+  #subHeader .main-nav .dropDown.custom .productGroups .title a { display: block; color: #151515 !important; font-size: 13px !important; line-height: 1.3; text-align: center; }
+  #subHeader .main-nav .dropDown.custom .productGroups .sub { display: none; }
+  #subHeader .main-nav .dropDown.custom .productGroups .image img { display: block; width: 100%; height: 64px; object-fit: contain; }
+  #subHeader[data-scor-desktop-nav="ready"] #altBar .languageSelectionButton { visibility: hidden !important; }
+  #subHeader .scor-lang-btn {
+    top: 9px !important; inset-inline-end: auto !important;
+    inset-inline-start: max(12px, calc((100vw - 1448px)/2 + 12px)) !important;
+  }
+}
+@media (min-width:1025px) {
+  #mobileMenu { display: none !important; }
+  #subHeader .main-nav li.link > a.scrs .icon-down-dir { color: inherit !important; }
+  #subHeader .main-nav .dropDown.custom .productGroups > li > div {
+    padding: 0 !important; border: 0 !important; border-radius: 0;
+  }
+  #subHeader .main-nav .dropDown.custom .productGroups > li:hover > div { border: 0 !important; }
+  #subHeader .main-nav .dropDown.custom .productGroups .title { display: block; height: auto; padding: 0; }
+  #subHeader .main-nav .dropDown.custom .productGroups .title a {
+    display: flex !important; align-items: center; min-height: 48px; padding: 10px 12px;
+    text-align: start !important; border-radius: 5px; color: #151515 !important;
+    font-size: 14px !important; font-weight: 500; line-height: 1.35;
+  }
+  #subHeader .main-nav .dropDown.custom .productGroups .title a:hover,
+  #subHeader .main-nav .dropDown.custom .productGroups .title a:focus-visible {
+    background: #F5B400 !important; color: #151515 !important;
+  }
+  #subHeader .main-nav .dropDown.custom .productGroups .image { display: none !important; }
+}
+@media (min-width:1025px) and (max-width:1199px) {
+  #subHeader .main-nav li.link > a.scrs { padding-inline: 8px !important; font-size: 14px !important; }
+}
+@media (min-width:1025px) {
+  #subHeader .headerNav .main-nav .link.scor-nav-suppressed > .dropDown {
+    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+  }
+}
+@media (min-width:1025px) {
+  #subHeader .main-nav .dropDown.mega > .wrapper { max-height: calc(100vh - 160px); overflow-y: auto; }
+  /* Avoid delayed inherited visibility blocking keyboard focus on submenu links. */
+  #subHeader .headerNav .main-nav .dropDown * {
+    transition-property: color, background-color, border-color !important;
+    transition-duration: .14s !important;
+  }
+}
+@media (min-width:1025px) {
+  /* Keep the breadcrumb beneath the navigation, not overlapping it. */
+  #subHeader #breadCrumb { margin-top: 0 !important; }
+}
