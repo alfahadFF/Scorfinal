@@ -7,7 +7,7 @@
         var a = e.target && e.target.closest ? e.target.closest('#localization a') : null;
         if (!a) return;
         var h = a.getAttribute('href') || '';
-        var m = h.match(/^\/(ar)(\/|$)/);
+        var m = h.match(/^\/(ar|de|tr)(\/|$)/);
         var lang = null;
         if (m) lang = m[1];
         else if (h === '/' || h.indexOf('/en') === 0 || h === 'index.html') lang = 'en';

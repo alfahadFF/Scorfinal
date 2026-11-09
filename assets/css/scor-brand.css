@@ -281,3 +281,17 @@ footer .logo img, .sf-brand img { height: 30px !important; width: auto !importan
   /* Keep the breadcrumb beneath the navigation, not overlapping it. */
   #subHeader #breadCrumb { margin-top: 0 !important; }
 }
+
+/* Fill the expanded homepage service card with its existing image. */
+#highlighted .item.scor-service-wide .bg img { display:block; width:100% !important; height:100% !important; max-width:none !important; object-fit:cover; }
+@media (min-width:1313px) { #highlighted .item.scor-service-wide .bg { height:400px !important; } }
+/* Three direct destinations replace the former Company, News and Contact menus. */
+@media (min-width:1025px) and (max-width:1279px) {
+  #subHeader .main-nav li.link.scor-nav-direct > a.scrs { padding-inline: 5px !important; font-size: 12px !important; }
+}
+@media (max-width:1024px) {
+  /* Keep all six navigation items full-width, including RTL; allow long menus to scroll. */
+  #mobileMenu > .row.dropDown { background:#fff !important; height:calc(100vh - 60px) !important; overflow-y:auto !important; }
+  #mobileMenu > .row.dropDown > .columns { float:none !important; clear:both; width:100% !important; max-width:100% !important; flex:0 0 100% !important; }
+  #mobileMenu a.scor-mobile-direct { display:block; width:100%; padding-inline:12px !important; text-decoration:none; color:#151515 !important; }
+}

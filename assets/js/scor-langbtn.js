@@ -64,7 +64,8 @@
   function init() {
     var header = document.getElementById('subHeader');
     if (!header || header.dataset.scorDesktopNav === 'ready') return;
-    var items = Array.prototype.slice.call(header.querySelectorAll('.headerNav .main-nav li.link')).filter(function (item) {
+    var allItems = Array.prototype.slice.call(header.querySelectorAll('.headerNav .main-nav li.link'));
+    var items = allItems.filter(function (item) {
       return item.querySelector(':scope > a.scrs') && item.querySelector(':scope > .dropDown');
     });
     if (!items.length) return;
@@ -72,7 +73,7 @@
 
     // The original theme binds hover to pageLock(true). Desktop menus must not
     // disable scrolling or the browser's keyboard handlers while merely hovered.
-    if (window.jQuery) window.jQuery(items).off('mouseenter mouseleave');
+    if (window.jQuery) window.jQuery(allItems).off('mouseenter mouseleave');
 
     var globe = header.querySelector('.scor-lang-btn span');
     var globeMobileLabel = globe ? globe.textContent : '';
@@ -205,4 +206,26 @@
   // pages can prevent later jQuery callbacks from running.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+})();
+
+/* Give the existing mobile menu control keyboard and screen-reader semantics. */
+(function () {
+  function initMobileControl() {
+    var menu=document.getElementById('mobileMenu');
+    var trigger=menu && menu.querySelector('.openNav');
+    var panel=menu && menu.querySelector('.row.dropDown');
+    if(!trigger || !panel) return;
+    if(!panel.id) panel.id='scor-mobile-navigation';
+    var lang=(document.documentElement.lang || 'en').toLowerCase().split('-')[0];
+    var labels={ar:'القائمة',en:'Menu',de:'Menü',tr:'Menü'};
+    trigger.setAttribute('role','button');trigger.setAttribute('tabindex','0');
+    trigger.setAttribute('aria-label',labels[lang] || labels.en);
+    trigger.setAttribute('aria-controls',panel.id);
+    function update(){trigger.setAttribute('aria-expanded',menu.classList.contains('open')?'true':'false');}
+    update();
+    trigger.addEventListener('click',function(){window.setTimeout(update,0);});
+    trigger.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();trigger.click();}});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initMobileControl);
+  else initMobileControl();
 })();
