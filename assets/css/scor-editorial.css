@@ -8,8 +8,7 @@ body.scor-editorial-page #pageContent{margin-top:0!important;padding-top:0!impor
 /* Preserve SCOR contact data while displaying international numbers correctly in RTL. */
 html[dir="rtl"] body.scor-editorial-page #footer-section a[href^="tel:"],html[dir="rtl"] body.scor-editorial-page #footer-section a[href^="mailto:"]{direction:ltr;unicode-bidi:isolate;display:inline-block}
 html[dir="rtl"] body.scor-editorial-page #footer-section .sf-address a[href^="tel:"],html[dir="rtl"] body.scor-editorial-page #footer-section .sf-address a[href^="mailto:"]{margin-right:.25em}
-@media(min-width:1313px){body.scor-editorial-page{padding-top:130px!important}}
-@media(min-width:1025px) and (max-width:1312px){body.scor-editorial-page{padding-top:136px!important}}
+@media(min-width:1025px){body.scor-editorial-page{padding-top:76px!important}}
 @media(max-width:1024px){body.scor-editorial-page{padding-top:60px!important}}
 #pageContent .scor-story{background:#fff;color:#111827;line-height:1.8;overflow-x:clip}
 #pageContent .scor-story *,#pageContent .scor-story *::before,#pageContent .scor-story *::after{box-sizing:border-box}

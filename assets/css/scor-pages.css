@@ -74,3 +74,21 @@ html[lang^="ar"] .scor-page .scor-eyebrow{letter-spacing:0;font-size:15px}
  body.scor-info-page #mobileMenu #scorMobileSearch{position:relative;padding:0!important;border:0;box-shadow:none}
  body.scor-info-page #mobileMenu #scorMobileSearch input[type="text"]{font-size:16px;height:44px;padding:0 20px;width:100%;margin:0;text-align:left;border:1px solid rgba(102,112,133,.35);box-shadow:none}
 }
+
+/* Keep the existing left-aligned mobile logo and separate the menu hitbox from the globe. */
+@media (max-width:1024px) {
+ body.scor-info-page #mobileMenu .openNav{position:fixed!important;top:0!important;right:0!important;left:auto!important;width:60px!important;height:60px!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important}
+ body.scor-info-page #mobileMenu .openNav .navIcon{top:auto!important;left:auto!important;right:auto!important;margin:0!important}
+}
+/* Social glyphs: Simple Icons 13.13.0, CC0-1.0; brand names remain trademarks.
+   These are intentionally noninteractive until SCOR supplies real account URLs. */
+.scor-contact-page .scor-follow{padding-top:19px;border-top:1px solid rgba(255,255,255,.15)}
+.scor-contact-page .scor-follow h3{margin:0 0 15px;color:#F5B400;font-size:16px;font-weight:700;line-height:1.4;text-transform:none;letter-spacing:0}
+.scor-contact-page ul.scor-social-list{display:grid;grid-template-columns:repeat(6,40px);gap:8px;list-style:none;margin:0;padding:0}
+.scor-contact-page .scor-social-list li{list-style:none;margin:0;padding:0}
+.scor-contact-page .scor-social-list li::before{content:none;display:none}
+.scor-contact-page .scor-social-icon{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid rgba(245,180,0,.42);border-radius:50%;background:rgba(245,180,0,.07);color:#F5B400}
+.scor-contact-page .scor-social-icon svg{display:block;width:19px;height:19px;fill:currentColor}
+@media (max-width:365px), (min-width:768px) and (max-width:974px){
+ .scor-contact-page ul.scor-social-list{grid-template-columns:repeat(3,40px)}
+}
