@@ -39,17 +39,50 @@
       }
     }
     var menu=document.querySelector('#subHeader .productGroups');
-    if(menu && !menu.querySelector('a[href="'+href+'"]')){
-      var item=document.createElement('li');item.className='columns small-3';
-      var wrap=document.createElement('div');wrap.className='transition';
-      var title=document.createElement('div');title.className='title';
-      var link=document.createElement('a');link.href=href;link.textContent=labels[lang];title.appendChild(link);
-      var sub=document.createElement('div');sub.className='sub';
-      var image=document.createElement('div');image.className='image';
-      var imgLink=document.createElement('a');imgLink.href=href;
-      var img=document.createElement('img');img.src='/assets/img/scor-products/ms50/1.jpg';img.alt=labels[lang]+' — SCOR MS 50';
-      img.width=1024;img.height=765;img.decoding='async';img.loading='eager';imgLink.appendChild(img);image.appendChild(imgLink);
-      wrap.appendChild(title);wrap.appendChild(sub);wrap.appendChild(image);item.appendChild(wrap);menu.appendChild(item);
+    if(menu){
+      // Compare resolved category paths, not only literal href attributes.
+      // Count list items (not anchors), since one card may link its title and image.
+      var isMortarLink=function(a){
+        try {
+          var u=new URL(a.getAttribute('href'),document.baseURI);
+          var isInternal=u.origin===window.location.origin || u.hostname==='scor-sy.de' || u.hostname==='www.scor-sy.de';
+          return isInternal && /\/products\/mortar-spraying-machines(?:\.html)?\/?$/i.test(u.pathname);
+        } catch(e){return false;}
+      };
+      var dedupe=function(){
+        var items=Array.prototype.filter.call(menu.children,function(item){
+          return item.tagName==='LI' && Array.prototype.some.call(item.querySelectorAll('a[href]'),isMortarLink);
+        });
+        var keep=items.filter(function(item){
+          return Array.prototype.some.call(item.querySelectorAll('a[href]'),function(a){
+            return isMortarLink(a) && new URL(a.getAttribute('href'),document.baseURI).pathname===href;
+          });
+        })[0] || items[0];
+        items.forEach(function(item){
+          if(item===keep) return;
+          var links=item.querySelectorAll('a[href]');
+          if(links.length && Array.prototype.every.call(links,isMortarLink) && !item.querySelector('button,input,select,textarea')) item.remove();
+        });
+        return keep;
+      };
+      var keep=dedupe();
+      if(!keep){
+        var item=document.createElement('li');item.className='columns small-3';
+        var wrap=document.createElement('div');wrap.className='transition';
+        var title=document.createElement('div');title.className='title';
+        var link=document.createElement('a');link.href=href;link.textContent=labels[lang];title.appendChild(link);
+        var sub=document.createElement('div');sub.className='sub';
+        var image=document.createElement('div');image.className='image';
+        var imgLink=document.createElement('a');imgLink.href=href;
+        var img=document.createElement('img');img.src='/assets/img/scor-products/ms50/1.jpg';img.alt=labels[lang]+' — SCOR MS 50';
+        img.width=1024;img.height=765;img.decoding='async';img.loading='eager';imgLink.appendChild(img);image.appendChild(imgLink);
+        wrap.appendChild(title);wrap.appendChild(sub);wrap.appendChild(image);item.appendChild(wrap);menu.appendChild(item);
+      }
+      // Also guard against a duplicate added after the initial page load.
+      if(window.MutationObserver && !menu.__scorMortarGuard){
+        menu.__scorMortarGuard=new MutationObserver(dedupe);
+        menu.__scorMortarGuard.observe(menu,{childList:true,subtree:true,attributes:true,attributeFilter:['href']});
+      }
     }
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addMortarCategory);

@@ -165,7 +165,7 @@
 <li><a href="../services/guarantee.html">GUARANTEE</a></li>
 <li><a href="../services/technical-training.html">TECHNICAL TRAINING</a></li>
 
-<li><a href="../services/campaigns.html">CAMPAIGNS</a></li>
+
 <li><a href="../services/service.html">SERVICE</a></li><li><a href="../services/international-shipping.html">INTERNATIONAL SHIPPING</a></li><li><a href="../services/international-logistics.html">INTERNATIONAL LOGISTICS</a></li>
 </ul>
 </div>
@@ -285,7 +285,7 @@
 <li><a class="transition" href="../services/guarantee.html">GUARANTEE</a></li>
 <li><a class="transition" href="../services/technical-training.html">TECHNICAL TRAINING</a></li>
 
-<li><a class="transition" href="../services/campaigns.html">CAMPAIGNS</a></li>
+
 <li><a class="transition" href="../services/service.html">SERVICE</a></li><li><a class="transition" href="../services/international-shipping.html">INTERNATIONAL SHIPPING</a></li><li><a class="transition" href="../services/international-logistics.html">INTERNATIONAL LOGISTICS</a></li>
 </ul>
 </div>
@@ -314,6 +314,16 @@
 #pageContent .scor-center-card address{margin:0;color:#667085;font-size:16px;line-height:1.75;font-style:normal;overflow-wrap:anywhere;text-align:left}
 html[dir="rtl"] #pageContent .scor-center-card address{text-align:right}
 @media(max-width:800px){#pageContent .scor-centers{width:calc(100% - 36px);padding:28px 0 48px}#pageContent .scor-centers-grid{grid-template-columns:1fr;gap:14px}#pageContent .scor-center-card{min-height:0;padding:22px}#pageContent .scor-center-card h2{font-size:19px;margin-bottom:10px}}
+/* International Centers only: retain the left-aligned logo and separate mobile controls. */
+@media(max-width:1024px){
+ #subHeader .headerNav .logoWrapper{left:12px!important;right:auto!important;top:4px!important;width:152px!important;height:48px!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;padding:0!important;margin:0!important}
+ #subHeader .headerNav .logoWrapper img.ng{position:static!important;display:block!important;width:auto!important;height:28px!important;max-width:152px!important;max-height:28px!important;margin:0!important;transform:none!important}
+ #subHeader .scor-tagline{position:fixed!important;top:35px!important;bottom:auto!important;left:12px!important;right:auto!important;margin:0!important;font-size:8px!important;letter-spacing:.1em!important;line-height:1!important}
+ #subHeader .scor-lang-btn{inset-inline-start:auto!important;inset-inline-end:auto!important;left:auto!important;right:65px!important}
+ #mobileMenu .openNav{position:fixed!important;top:0!important;right:0!important;left:auto!important;width:60px!important;height:60px!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important}
+ #mobileMenu .openNav .navIcon{top:auto!important;left:auto!important;right:auto!important;margin:0!important}
+}
+
 </style>
 <section class="scor-centers" aria-label="International Centers">
 <div class="scor-centers-grid">
@@ -510,5 +520,5 @@ html[dir="rtl"] #pageContent .scor-center-card address{text-align:right}
 }</script>
 <script data-privacy="../services/protection-of-personal-data.html" defer="" src="../../assets/js/scor-consent.js"></script>
 <script src="../../assets/js/scor-lang.js"></script>
-<script src="../../assets/js/scor-langbtn.js"></script></body>
+<script src="../../assets/js/scor-langbtn.js?v=menu-ms1"></script></body>
 </html>
