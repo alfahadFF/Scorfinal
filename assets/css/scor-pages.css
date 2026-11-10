@@ -80,15 +80,17 @@ html[lang^="ar"] .scor-page .scor-eyebrow{letter-spacing:0;font-size:15px}
  body.scor-info-page #mobileMenu .openNav{position:fixed!important;top:0!important;right:0!important;left:auto!important;width:60px!important;height:60px!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important}
  body.scor-info-page #mobileMenu .openNav .navIcon{top:auto!important;left:auto!important;right:auto!important;margin:0!important}
 }
-/* Social glyphs: Simple Icons 13.13.0, CC0-1.0; brand names remain trademarks.
-   These are intentionally noninteractive until SCOR supplies real account URLs. */
+/* Social glyphs: Simple Icons, CC0-1.0; brand names remain trademarks. */
 .scor-contact-page .scor-follow{padding-top:19px;border-top:1px solid rgba(255,255,255,.15)}
-.scor-contact-page .scor-follow h3{margin:0 0 15px;color:#F5B400;font-size:16px;font-weight:700;line-height:1.4;text-transform:none;letter-spacing:0}
-.scor-contact-page ul.scor-social-list{display:grid;grid-template-columns:repeat(6,40px);gap:8px;list-style:none;margin:0;padding:0}
+.scor-contact-page .scor-follow h3{margin:0 0 14px;color:#F5B400;font-size:16px;font-weight:700;line-height:1.4;text-transform:none;letter-spacing:0}
+.scor-contact-page ul.scor-social-list{display:flex;flex-wrap:wrap;gap:9px;list-style:none;margin:0;padding:0}
 .scor-contact-page .scor-social-list li{list-style:none;margin:0;padding:0}
 .scor-contact-page .scor-social-list li::before{content:none;display:none}
-.scor-contact-page .scor-social-icon{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid rgba(245,180,0,.42);border-radius:50%;background:rgba(245,180,0,.07);color:#F5B400}
+.scor-contact-page a.scor-social-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid rgba(245,180,0,.45);border-radius:50%;background:rgba(245,180,0,.08);color:#F5B400;text-decoration:none;transition:background-color .16s ease,color .16s ease,border-color .16s ease}
+.scor-contact-page a.scor-social-icon:hover,.scor-contact-page a.scor-social-icon:focus-visible{background:#F5B400;border-color:#F5B400;color:#151515;text-decoration:none}
 .scor-contact-page .scor-social-icon svg{display:block;width:19px;height:19px;fill:currentColor}
-@media (max-width:365px), (min-width:768px) and (max-width:974px){
- .scor-contact-page ul.scor-social-list{grid-template-columns:repeat(3,40px)}
-}
+.scor-contact-page .scor-whatsapp-links{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.scor-contact-page a.scor-whatsapp-pill{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid rgba(245,180,0,.45);border-radius:999px;background:rgba(245,180,0,.08);color:#fff;font-size:14px;font-weight:700;line-height:1.3;text-decoration:none;transition:background-color .16s ease,color .16s ease,border-color .16s ease}
+.scor-contact-page a.scor-whatsapp-pill svg{display:block;width:18px;height:18px;flex:0 0 18px;fill:#F5B400;transition:fill .16s ease}
+.scor-contact-page a.scor-whatsapp-pill:hover,.scor-contact-page a.scor-whatsapp-pill:focus-visible{background:#F5B400;border-color:#F5B400;color:#151515;text-decoration:none}
+.scor-contact-page a.scor-whatsapp-pill:hover svg,.scor-contact-page a.scor-whatsapp-pill:focus-visible svg{fill:#151515}
