@@ -256,7 +256,17 @@
     trigger.setAttribute('aria-controls',panel.id);
     function update(){trigger.setAttribute('aria-expanded',menu.classList.contains('open')?'true':'false');}
     update();
-    trigger.addEventListener('click',function(){window.setTimeout(update,0);});
+    trigger.addEventListener('click',function(){
+      if(!window.jQuery){
+        var open=menu.classList.toggle('open');
+        var icon=trigger.querySelector('.navIcon');
+        if(icon) icon.classList.toggle('open',open);
+      }
+      window.setTimeout(update,0);
+    });
+    Array.prototype.forEach.call(panel.querySelectorAll('div.headLink'),function(hl){
+      hl.addEventListener('click',function(){if(!window.jQuery) hl.classList.toggle('open');});
+    });
     trigger.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();trigger.click();}});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initMobileControl);

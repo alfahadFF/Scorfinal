@@ -69,8 +69,20 @@ input[type="search"]:focus,textarea:focus,select:focus{
 /* Content accents */
 .sectionTitle{color:var(--scor-text)}
 .sectionDescription{color:var(--scor-gray)}
-.official-text a{color:var(--scor-gold)}
-.official-text a:hover{color:var(--scor-charcoal)}
+/* Override legacy hairline font-weight:100 on paragraphs and descriptions. */
+p,.description{font-weight:400}
+/* Readable text and links on light content backgrounds. */
+.official-text{color:#111827;font-weight:400}
+.official-text p,.official-text li,.official-text td{color:#111827;font-weight:400}
+.official-text a{color:#151515;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.official-text a:hover,.official-text a:focus-visible{color:#242424;text-decoration-thickness:2px}
+.official-text a[href^="tel:"],.official-text a[href^="mailto:"]{display:inline-block;direction:ltr;unicode-bidi:isolate;margin-inline-start:4px}
+.official-text .scor-independent-office{margin:20px 0;padding:18px 20px;border:1px solid #d0d5dd;border-inline-start:4px solid #F5B400;background:#fff}
+.official-text .scor-independent-office h3{margin:0 0 8px;color:#151515}
+.official-text .scor-independent-office p{margin:0;color:#111827;font-weight:400}
+#pageContent .detail a[href^="mailto:"],#pageContent .specGroup a[href^="mailto:"],#pageContent .alt a[href^="mailto:"]{color:#151515;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+#pageContent #products li.product:hover .name{color:#151515!important}
+@media (max-width:1024px){#mobileMenu > .row.dropDown{padding-bottom:28px!important;-webkit-overflow-scrolling:touch}}
 .official-text .director-card{border-top-color:var(--scor-yellow)}
 .official-text .company-table th{background:#F8F9FA;color:var(--scor-text)}
 
